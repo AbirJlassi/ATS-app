@@ -1,0 +1,54 @@
+# Node
+node_modules/
+dist/
+build/
+.env
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.egg-info/
+.env
+.venv/
+venv/
+ENV/
+.env.*
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+
+# Alembic
+backend/alembic/versions/__pycache__/
+
+# Frontend build
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+
+# Misc
+*.swp
+*.swo
+
+# Ignore local storage
+backend/storage/cvs/
+
+# Ignore test cache
+backend/tests/__pycache__/
+
+# Ignore scripts cache
+backend/scripts/__pycache__/
+
+# Ignore frontend cache
+frontend/.cache/
