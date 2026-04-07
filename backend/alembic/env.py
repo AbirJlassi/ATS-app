@@ -8,9 +8,9 @@ from alembic import context
 
 from app.db.session import Base
 from app.core.config import settings
-import app.models.user   # noqa: F401
-import app.models.offre  # noqa: F401  ← nouveau modèle
-import app.models.candidature  # noqa: F401  ← nouveau modèle
+import app.models.user         # noqa
+import app.models.offre        # noqa
+import app.models.candidature  # noqa  ← ParseStatut + cv_data ajoutés
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

@@ -13,6 +13,7 @@ const candidatureService = {
     ).then((r) => r.data);
   },
 
+
   // Candidatures du candidat connecté
   mesCandidatures: () =>
     api.get<Candidature[]>("/candidatures/mes").then((r) => r.data),
@@ -21,10 +22,15 @@ const candidatureService = {
   candidaturesOffre: (offreId: string) =>
     api.get<Candidature[]>(`/offres/${offreId}/candidatures`).then((r) => r.data),
 
+    // Candidature + CV parsé (recruteur)
+  getCandidature: (id: string) =>
+    api.get<Candidature>(`/candidatures/${id}`).then((r) => r.data),
+
   // Mettre à jour le statut (recruteur)
   updateStatut: (candidatureId: string, statut: string) =>
     api.patch<Candidature>(`/candidatures/${candidatureId}/statut`, { statut })
        .then((r) => r.data),
 };
 
+  
 export default candidatureService;

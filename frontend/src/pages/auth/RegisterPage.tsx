@@ -1,19 +1,63 @@
+/**
+ * RegisterPage.tsx — Page d'inscription
+ * Layout centré avec fond dégradé subtil, sélecteur de rôle animé,
+ * formulaire en étapes visuelles et confirmation animée.
+ */
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, User, Phone, Building2, ArrowRight, CheckCircle2 } from "lucide-react";
 import authService from "@/services/authService";
 import type { Role } from "@/types";
 
+/* ── Input avec icône ── */
+function Field({
+  id, label, type = "text", placeholder, value, onChange, icon, required, minLength,
+}: {
+  id: string; label: string; type?: string; placeholder: string;
+  value: string; onChange: (v: string) => void;
+  icon: React.ReactNode; required?: boolean; minLength?: number;
+}) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div>
+      <label htmlFor={id} className="block text-sm font-medium text-ink mb-1.5">{label}</label>
+      <div className={`relative flex items-center rounded-xl border transition-all duration-200 bg-white shadow-sm ${
+        focused ? "border-blue-400 ring-4 ring-blue-500/10" : "border-surface-200"
+      }`}>
+        <div className={`pl-3.5 transition-colors duration-200 ${focused ? "text-blue-500" : "text-ink-muted"}`}>
+          {icon}
+        </div>
+        <input
+          id={id} type={type} placeholder={placeholder} value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+          required={required} minLength={minLength}
+          className="w-full bg-transparent px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus:outline-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ── Page principale ── */
 export default function RegisterPage() {
-  const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "", role: "CANDIDAT" as Role, nom: "", prenom: "", telephone: "", departement: "" });
-  const [error, setError]     = useState<string | null>(null);
+  const navigate  = useNavigate();
+  const [form, setForm] = useState({
+    email: "", password: "", confirm: "", role: "CANDIDAT" as Role,
+    nom: "", prenom: "", telephone: "", departement: "",
+  });
+  const [error,   setError]   = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const update = (f: string, v: string) => setForm((p) => ({ ...p, [f]: v }));
+  const upd = (f: string, v: string) => setForm((p) => ({ ...p, [f]: v }));
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setError(null); setLoading(true);
+    e.preventDefault();
+    setError(null);
+    if (form.password !== form.confirm) { setError("Les mots de passe ne correspondent pas."); return; }
+    setLoading(true);
     try {
       await authService.register({ ...form, role: form.role as "CANDIDAT" | "RECRUTEUR" });
       setSuccess(true);
@@ -22,107 +66,154 @@ export default function RegisterPage() {
     } finally { setLoading(false); }
   };
 
+  /* ── Écran de succès ── */
   if (success) return (
-    <div className="min-h-screen bg-canvas flex items-center justify-center px-4">
-      <div className="card max-w-sm w-full text-center animate-scale-in">
-        <div className="w-12 h-12 rounded-2xl bg-success-subtle flex items-center justify-center mx-auto mb-4">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M4 10L8 14L16 6" stroke="#2DC98A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+    <div className="min-h-screen bg-surface-50 flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="bg-white rounded-3xl shadow-glass border border-surface-200 max-w-sm w-full p-10 text-center"
+      >
+        <div className="w-16 h-16 rounded-2xl bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-5">
+          <CheckCircle2 className="w-8 h-8 text-green-500" />
         </div>
-        <h2 className="font-display text-2xl text-ink mb-2">Compte créé !</h2>
-        <p className="text-ink-secondary text-sm mb-6">
-          Votre compte est en attente de validation par un administrateur. Vous serez notifié dès son activation.
+        <h2 className="text-2xl font-bold text-ink mb-2">Compte créé !</h2>
+        <p className="text-ink-secondary text-sm leading-relaxed mb-8">
+          Votre compte est en attente de validation par un administrateur.<br/>Vous serez notifié dès son activation.
         </p>
-        <button onClick={() => navigate("/login")} className="btn-primary w-full">
-          Aller à la connexion →
+        <button
+          onClick={() => navigate("/login")}
+          className="w-full flex items-center justify-center gap-2 bg-brand-primary text-white font-semibold text-sm py-3 rounded-xl hover:bg-brand-secondary transition-all shadow-md"
+        >
+          Aller à la connexion <ArrowRight className="w-4 h-4" />
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-canvas flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md animate-slide-up">
+    <div className="min-h-screen bg-surface-50 flex items-center justify-center px-4 py-12">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-md"
+      >
+        {/* Logo + Titre */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 rounded-xl bg-ink flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 11L7 3L12 11" stroke="#80D6EC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M4 8.5H10" stroke="#F1BB2B" strokeWidth="1.5" strokeLinecap="round"/>
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-6">
+            <div className="w-9 h-9 rounded-xl bg-brand-primary flex items-center justify-center shadow-sm">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <line x1="10" y1="3" x2="10" y2="16" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round"/>
+                <line x1="3" y1="7" x2="17" y2="7" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="3" y1="7" x2="3" y2="10" stroke="#60A5FA" strokeWidth="1.4" strokeLinecap="round"/>
+                <line x1="17" y1="7" x2="17" y2="10" stroke="#60A5FA" strokeWidth="1.4" strokeLinecap="round"/>
+                <circle cx="3" cy="12" r="2" fill="#FCD34D"/>
+                <path d="M0.5 17 Q3 14.5 5.5 17" stroke="#FCD34D" strokeWidth="1.4" strokeLinecap="round"/>
+                <circle cx="17" cy="12" r="2" fill="#FCD34D"/>
+                <path d="M14.5 17 Q17 14.5 19.5 17" stroke="#FCD34D" strokeWidth="1.4" strokeLinecap="round"/>
+                <line x1="7" y1="16" x2="13" y2="16" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round"/>
               </svg>
             </div>
-            <span className="font-display text-xl text-ink">Fair<span className="text-brand-amaranth">Hire</span></span>
+            <span className="font-bold text-xl text-brand-primary">Fair<span className="text-blue-500">Hire</span></span>
           </Link>
-          <h1 className="font-display text-3xl text-ink mb-1">Créer un compte</h1>
-          <p className="text-ink-secondary text-sm">Rejoignez la plateforme FairHire.</p>
+          <h1 className="text-3xl font-bold text-ink tracking-tight">Créer un compte</h1>
+          <p className="text-ink-secondary text-sm mt-1">Rejoignez la plateforme FairHire.</p>
         </div>
 
-        {error && <div className="bg-danger-subtle border border-danger/20 text-danger text-sm rounded-xl px-4 py-3 mb-5">{error}</div>}
+        {/* Erreur */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+              className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-5"
+            >
+              <span className="text-red-500 mt-0.5">⚠</span> {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <div className="card">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Rôle */}
+        <div className="bg-white rounded-3xl shadow-glass border border-surface-200 p-7">
+          <form onSubmit={handleSubmit} className="space-y-5">
+
+            {/* Sélecteur de rôle */}
             <div>
-              <label className="block text-xs font-medium text-ink-muted mb-2 uppercase tracking-wide">Je suis</label>
-              <div className="grid grid-cols-2 gap-2">
+              <label className="block text-sm font-medium text-ink mb-2">Je suis</label>
+              <div className="grid grid-cols-2 gap-2.5">
                 {(["CANDIDAT", "RECRUTEUR"] as const).map((r) => (
-                  <button key={r} type="button" onClick={() => update("role", r)}
-                    className={`py-3 rounded-xl border text-sm font-medium transition-all ${
+                  <button
+                    key={r} type="button" onClick={() => upd("role", r)}
+                    className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 ${
                       form.role === r
-                        ? "bg-ink text-white border-ink"
-                        : "bg-surface text-ink-secondary border-border hover:border-ink/30"
-                    }`}>
-                    {r === "CANDIDAT" ? "Candidat" : "Recruteur"}
+                        ? "bg-brand-primary text-white border-brand-primary shadow-md"
+                        : "bg-white text-ink-secondary border-surface-200 hover:border-brand-accent"
+                    }`}
+                  >
+                    {r === "CANDIDAT" ? "👤 Candidat" : "🏢 Recruteur"}
                   </button>
                 ))}
               </div>
             </div>
 
+            {/* Prénom + Nom */}
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-ink-muted mb-1.5 uppercase tracking-wide">Prénom</label>
-                <input type="text" className="input" placeholder="Jean" value={form.prenom} onChange={(e) => update("prenom", e.target.value)} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-ink-muted mb-1.5 uppercase tracking-wide">Nom</label>
-                <input type="text" className="input" placeholder="Dupont" value={form.nom} onChange={(e) => update("nom", e.target.value)} />
-              </div>
+              <Field id="reg-prenom" label="Prénom" placeholder="Jean"
+                value={form.prenom} onChange={(v) => upd("prenom", v)}
+                icon={<User className="w-4 h-4" />} />
+              <Field id="reg-nom" label="Nom" placeholder="Dupont"
+                value={form.nom} onChange={(v) => upd("nom", v)}
+                icon={<User className="w-4 h-4" />} />
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-ink-muted mb-1.5 uppercase tracking-wide">Email <span className="text-danger">*</span></label>
-              <input type="email" className="input" placeholder="vous@exemple.com" value={form.email} onChange={(e) => update("email", e.target.value)} required />
-            </div>
+            <Field id="reg-email" label="Email" type="email" placeholder="vous@exemple.com"
+              value={form.email} onChange={(v) => upd("email", v)}
+              icon={<Mail className="w-4 h-4" />} required />
 
-            <div>
-              <label className="block text-xs font-medium text-ink-muted mb-1.5 uppercase tracking-wide">Mot de passe <span className="text-danger">*</span></label>
-              <input type="password" className="input" placeholder="8 caractères minimum" value={form.password} onChange={(e) => update("password", e.target.value)} required minLength={8} />
-            </div>
+            <Field id="reg-password" label="Mot de passe" type="password" placeholder="8 caractères minimum"
+              value={form.password} onChange={(v) => upd("password", v)}
+              icon={<Lock className="w-4 h-4" />} required minLength={8} />
 
-            <div>
-              <label className="block text-xs font-medium text-ink-muted mb-1.5 uppercase tracking-wide">Téléphone</label>
-              <input type="tel" className="input" placeholder="+216 XX XXX XXX" value={form.telephone} onChange={(e) => update("telephone", e.target.value)} />
-            </div>
+            <Field id="reg-confirm" label="Confirmer le mot de passe" type="password" placeholder="••••••••"
+              value={form.confirm} onChange={(v) => upd("confirm", v)}
+              icon={<Lock className="w-4 h-4" />} required />
 
-            {form.role === "RECRUTEUR" && (
-              <div>
-                <label className="block text-xs font-medium text-ink-muted mb-1.5 uppercase tracking-wide">Département</label>
-                <input type="text" className="input" placeholder="ex: Ressources Humaines" value={form.departement} onChange={(e) => update("departement", e.target.value)} />
-              </div>
-            )}
+            <Field id="reg-phone" label="Téléphone (optionnel)" type="tel" placeholder="+216 XX XXX XXX"
+              value={form.telephone} onChange={(v) => upd("telephone", v)}
+              icon={<Phone className="w-4 h-4" />} />
 
-            <button type="submit" disabled={loading} className="btn-primary btn-lg w-full mt-2">
-              {loading ? "Création..." : "Créer mon compte →"}
+            {/* Département (Recruteur uniquement) */}
+            <AnimatePresence>
+              {form.role === "RECRUTEUR" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}
+                >
+                  <Field id="reg-dept" label="Département" placeholder="ex: Ressources Humaines"
+                    value={form.departement} onChange={(v) => upd("departement", v)}
+                    icon={<Building2 className="w-4 h-4" />} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button
+              type="submit" disabled={loading}
+              className="w-full flex items-center justify-center gap-2 bg-brand-primary text-white font-semibold text-sm py-3 rounded-xl hover:bg-brand-secondary transition-all shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <><div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Création…</>
+              ) : (
+                <>Créer mon compte <ArrowRight className="w-4 h-4" /></>
+              )}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-sm text-ink-muted mt-4">
+        <p className="text-center text-sm text-ink-secondary mt-5">
           Déjà un compte ?{" "}
-          <Link to="/login" className="text-ink font-medium hover:text-accent-hover transition-colors">Se connecter</Link>
+          <Link to="/login" className="font-semibold text-brand-accent hover:text-brand-hover transition-colors">
+            Se connecter →
+          </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }

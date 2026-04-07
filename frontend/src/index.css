@@ -6,48 +6,56 @@
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   body {
-    @apply bg-canvas font-sans text-ink;
+    @apply bg-surface-50 font-sans text-ink;
     font-feature-settings: "cv02","cv03","cv04","cv11";
   }
-  ::selection { background: #80D6EC40; }
-  :focus-visible { outline: 2px solid #80D6EC; outline-offset: 2px; border-radius: 4px; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::selection { background: rgba(37, 99, 235, 0.2); }
+  :focus-visible { outline: 2px solid #2563EB; outline-offset: 2px; border-radius: 6px; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  ::-webkit-scrollbar-thumb { @apply bg-surface-300 rounded-full hover:bg-ink-muted transition-colors; }
 }
 
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-2 font-sans font-medium rounded-xl transition-all duration-150 cursor-pointer select-none disabled:opacity-40 disabled:cursor-not-allowed; }
-  .btn-sm  { @apply btn text-xs  px-3   py-1.5; }
-  .btn-md  { @apply btn text-sm  px-4   py-2;   }
-  .btn-lg  { @apply btn text-sm  px-5   py-2.5; }
-  .btn-primary   { @apply btn-md bg-ink       text-white  hover:bg-ink/85        active:scale-[0.98]; }
-  .btn-secondary { @apply btn-md bg-surface   text-ink    border border-border   hover:bg-canvas shadow-soft active:scale-[0.98]; }
-  .btn-ghost     { @apply btn-md text-ink-secondary hover:text-ink hover:bg-canvas active:scale-[0.98]; }
-  .btn-danger    { @apply btn-md bg-danger    text-white  hover:bg-danger/85     active:scale-[0.98]; }
-  .btn-accent    { @apply btn-md bg-accent    text-ink    hover:bg-accent-hover  active:scale-[0.98]; }
+  /* Boutons */
+  .btn { @apply inline-flex items-center justify-center gap-2 font-sans font-medium rounded-xl transition-all duration-200 cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-[0.98]; }
+  .btn-sm  { @apply text-sm px-3 py-1.5 rounded-lg; }
+  .btn-md  { @apply text-sm px-4 py-2; }
+  .btn-lg  { @apply text-base px-6 py-3; }
+  
+  .btn-primary   { @apply btn bg-brand-primary text-white hover:bg-brand-secondary shadow-md hover:shadow-lg; }
+  .btn-secondary { @apply btn bg-white text-ink border border-surface-200 hover:bg-surface-100 hover:border-surface-300; }
+  .btn-ghost     { @apply btn bg-transparent text-ink-secondary hover:text-ink hover:bg-surface-100 shadow-none; }
+  .btn-danger    { @apply btn bg-danger text-white hover:bg-danger-hover shadow-md; }
+  .btn-accent    { @apply btn bg-brand-accent text-white hover:bg-brand-hover shadow-md hover:shadow-lg; }
 
-  .input    { @apply w-full bg-surface border border-border rounded-xl px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-muted transition-all duration-150 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20; }
-  .input-lg { @apply input px-4 py-3 text-base; }
+  /* Inputs & Forms */
+  .input    { @apply w-full bg-white border border-surface-200 rounded-xl px-4 py-2.5 text-sm text-ink placeholder:text-ink-muted transition-all duration-200 focus:outline-none focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/20 shadow-sm; }
+  .input-lg { @apply input px-5 py-3 text-base; }
 
-  .card       { @apply bg-surface rounded-2xl shadow-card p-6; }
-  .card-hover { @apply card transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5; }
+  /* Cards Premium */
+  .card       { @apply bg-white rounded-2xl shadow-soft border border-surface-200/50 p-6; }
+  .card-hover { @apply card transition-all duration-300 hover:shadow-glass-hover hover:-translate-y-1 hover:border-surface-200; }
+  .card-glass { @apply bg-white/80 backdrop-blur-md rounded-2xl shadow-glass border border-white p-6; }
 
-  .badge         { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase; }
-  .badge-success { @apply badge bg-success-subtle text-success; }
-  .badge-warning { @apply badge bg-warning-subtle text-warning; }
-  .badge-danger  { @apply badge bg-danger-subtle  text-danger;  }
-  .badge-accent  { @apply badge bg-accent-subtle  text-accent-hover; }
-  .badge-neutral { @apply badge bg-canvas text-ink-muted border border-border; }
+  /* Badges */
+  .badge         { @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide border; }
+  .badge-success { @apply badge bg-success-subtle text-success-hover border-success/20; }
+  .badge-warning { @apply badge bg-warning-subtle text-warning-hover border-warning/20; }
+  .badge-danger  { @apply badge bg-danger-subtle text-danger-hover border-danger/20; }
+  .badge-accent  { @apply badge bg-brand-surface text-brand-hover border-brand-accent/20; }
+  .badge-neutral { @apply badge bg-surface-100 text-ink-secondary border-surface-200; }
 
-  .divider  { @apply border-t border-border; }
-  .page     { @apply max-w-6xl mx-auto px-6 py-8; }
-  .page-sm  { @apply max-w-xl  mx-auto px-6 py-8; }
-  .page-md  { @apply max-w-3xl mx-auto px-6 py-8; }
+  /* Layout */
+  .divider  { @apply border-t border-surface-200; }
+  .page     { @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8; }
+  .page-sm  { @apply w-full max-w-3xl mx-auto px-4 sm:px-6 py-8; }
 
-  .tabs       { @apply flex gap-0.5 bg-canvas rounded-xl p-1 border border-border w-fit; }
-  .tab        { @apply px-4 py-2 text-sm font-medium text-ink-secondary rounded-lg transition-all duration-150 cursor-pointer hover:text-ink; }
-  .tab-active { @apply tab bg-surface text-ink shadow-soft; }
+  /* Tabs */
+  .tabs       { @apply flex gap-1 bg-surface-100/50 backdrop-blur-sm rounded-xl p-1 border border-surface-200 w-fit; }
+  .tab        { @apply px-5 py-2.5 text-sm font-medium text-ink-secondary rounded-lg transition-all duration-200 cursor-pointer hover:text-ink; }
+  .tab-active { @apply tab bg-white text-ink shadow-sm border border-surface-200/50; }
 
-  .empty-state { @apply flex flex-col items-center justify-center py-16 text-center; }
+  /* Empty States */
+  .empty-state { @apply flex flex-col items-center justify-center py-16 px-4 text-center bg-surface-50 rounded-2xl border border-dashed border-surface-300; }
 }

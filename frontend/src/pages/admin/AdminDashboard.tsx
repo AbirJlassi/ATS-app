@@ -1,12 +1,24 @@
+/**
+ * AdminDashboard.tsx — Gestion des utilisateurs (Administrateur)
+ * Fond sombre premium via DashboardLayout, tableau avec glassmorphism,
+ * stats cliquables, filtres et modal de confirmation suppression.
+ */
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Users, RefreshCw, Shield, Clock, UserCheck, UserX,
+  Search, X, AlertTriangle, Trash2, ChevronDown,
+} from "lucide-react";
 import adminService from "@/services/adminService";
 import { useAuthStore } from "@/store/authStore";
 import type { User, Role, Statut } from "@/types";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
-const STATUT_CONFIG: Record<Statut, { label: string; badge: string }> = {
-  EN_ATTENTE: { label: "En attente", badge: "badge-warning" },
-  ACTIF:      { label: "Actif",      badge: "badge-success" },
-  SUSPENDU:   { label: "Suspendu",   badge: "badge-danger"  },
+/* ── Config statuts ── */
+const STATUT_CONFIG: Record<Statut, { label: string; cls: string; dot: string }> = {
+  EN_ATTENTE: { label: "En attente", cls: "bg-amber-500/20 text-amber-300 border-amber-500/30", dot: "bg-amber-400" },
+  ACTIF:      { label: "Actif",      cls: "bg-green-500/20 text-green-300 border-green-500/30", dot: "bg-green-400" },
+  SUSPENDU:   { label: "Suspendu",   cls: "bg-red-500/20 text-red-300 border-red-500/30",       dot: "bg-red-400"   },
 };
 
 const ROLE_CONFIG: Record<Role, { label: string }> = {
@@ -15,13 +27,39 @@ const ROLE_CONFIG: Record<Role, { label: string }> = {
   ADMINISTRATEUR: { label: "Admin"     },
 };
 
+/* ── Carte statistique ── */
+function StatCard({
+  label, value, icon, color, active, onClick,
+}: {
+  label: string; value: number; icon: React.ReactNode;
+  color: string; active: boolean; onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full rounded-2xl border p-5 text-left transition-all duration-200 flex items-start gap-4
+        ${active ? "ring-2 ring-blue-500/50 " : "hover:border-white/20 hover:bg-white/5"} ${color}`}
+    >
+      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+        {icon}
+      </div>
+      <div>
+        <p className="text-3xl font-bold text-white">{value}</p>
+        <p className="text-sm text-white/50 mt-0.5">{label}</p>
+      </div>
+    </button>
+  );
+}
+
+/* ── Composant principal ── */
 export default function AdminDashboard() {
   const { user: me } = useAuthStore();
   const [users,        setUsers]        = useState<User[]>([]);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState<string | null>(null);
+  const [search,       setSearch]       = useState("");
   const [filterStatut, setFilterStatut] = useState<Statut | "TOUS">("TOUS");
-  const [filterRole,   setFilterRole]   = useState<Role   | "TOUS">("TOUS");
+  const [filterRole,   setFilterRole]   = useState<Role | "TOUS">("TOUS");
   const [confirmDel,   setConfirmDel]   = useState<string | null>(null);
   const [actionId,     setActionId]     = useState<string | null>(null);
 
@@ -33,6 +71,7 @@ export default function AdminDashboard() {
     finally { setLoading(false); }
   };
 
+  /* Exécuter une action admin et recharger la liste */
   const act = async (id: string, fn: () => Promise<User | void>) => {
     setActionId(id);
     try { await fn(); await load(); }
@@ -40,11 +79,16 @@ export default function AdminDashboard() {
     finally { setActionId(null); }
   };
 
-  const filtered = users.filter((u) =>
-    (filterStatut === "TOUS" || u.statut === filterStatut) &&
-    (filterRole   === "TOUS" || u.role   === filterRole)
-  );
+  /* Filtres combinés */
+  const filtered = users.filter((u) => {
+    const matchStatut = filterStatut === "TOUS" || u.statut === filterStatut;
+    const matchRole   = filterRole   === "TOUS" || u.role   === filterRole;
+    const matchSearch = search === "" ||
+      `${u.prenom} ${u.nom} ${u.email}`.toLowerCase().includes(search.toLowerCase());
+    return matchStatut && matchRole && matchSearch;
+  });
 
+  /* Stats globales */
   const counts = {
     EN_ATTENTE: users.filter((u) => u.statut === "EN_ATTENTE").length,
     ACTIF:      users.filter((u) => u.statut === "ACTIF").length,
@@ -52,191 +96,283 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="page animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <p className="text-xs font-medium text-ink-muted uppercase tracking-wide mb-1">Administration</p>
-          <h1 className="font-display text-3xl text-ink">Gestion des utilisateurs</h1>
-        </div>
-        <button onClick={load} className="btn-secondary btn-sm">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M1 7a6 6 0 1 0 6-6 6 6 0 0 0-4.24 1.76" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M1 2v4h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Actualiser
-        </button>
-      </div>
+    <DashboardLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        {([
-          { key: "EN_ATTENTE", label: "En attente", color: "text-warning" },
-          { key: "ACTIF",      label: "Actifs",     color: "text-success" },
-          { key: "SUSPENDU",   label: "Suspendus",  color: "text-danger"  },
-        ] as const).map(({ key, label, color }) => (
-          <button key={key} onClick={() => setFilterStatut(filterStatut === key ? "TOUS" : key)}
-            className={`card text-left transition-all hover:shadow-card-hover hover:-translate-y-0.5 ${filterStatut === key ? "ring-2 ring-ink" : ""}`}>
-            <p className={`text-3xl font-display ${color} mb-1`}>{counts[key]}</p>
-            <p className="text-xs text-ink-muted uppercase tracking-wide">{label}</p>
-          </button>
-        ))}
-      </div>
-
-      {/* Error */}
-      {error && (
-        <div className="bg-danger-subtle border border-danger/20 text-danger text-sm rounded-xl px-4 py-3 mb-6 flex justify-between">
-          {error}<button onClick={() => setError(null)} className="text-danger/60 hover:text-danger">✕</button>
-        </div>
-      )}
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <select className="input text-sm w-44 py-2"
-          value={filterRole} onChange={(e) => setFilterRole(e.target.value as Role | "TOUS")}>
-          <option value="TOUS">Tous les rôles</option>
-          <option value="CANDIDAT">Candidat</option>
-          <option value="RECRUTEUR">Recruteur</option>
-          <option value="ADMINISTRATEUR">Admin</option>
-        </select>
-        <select className="input text-sm w-44 py-2"
-          value={filterStatut} onChange={(e) => setFilterStatut(e.target.value as Statut | "TOUS")}>
-          <option value="TOUS">Tous les statuts</option>
-          <option value="EN_ATTENTE">En attente</option>
-          <option value="ACTIF">Actif</option>
-          <option value="SUSPENDU">Suspendu</option>
-        </select>
-        {(filterStatut !== "TOUS" || filterRole !== "TOUS") && (
-          <button onClick={() => { setFilterStatut("TOUS"); setFilterRole("TOUS"); }}
-            className="btn-ghost btn-sm text-ink-muted">Réinitialiser</button>
-        )}
-        <span className="ml-auto text-sm text-ink-muted self-center">
-          {filtered.length} résultat{filtered.length > 1 ? "s" : ""}
-        </span>
-      </div>
-
-      {/* Table */}
-      {loading ? (
-        <div className="card empty-state text-ink-muted">Chargement...</div>
-      ) : filtered.length === 0 ? (
-        <div className="card empty-state">
-          <div className="w-12 h-12 rounded-2xl bg-canvas flex items-center justify-center mb-3">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="8" stroke="#A8A8A4" strokeWidth="1.5"/>
-              <path d="M10 6v4M10 13h.01" stroke="#A8A8A4" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
+        {/* ── En-tête ── */}
+        <div className="flex items-start justify-between mb-8 gap-4">
+          <div>
+            <p className="text-xs font-semibold text-blue-400 uppercase tracking-widest mb-1">Administration</p>
+            <h1 className="text-3xl font-bold text-white">Gestion des utilisateurs</h1>
+            <p className="text-slate-400 text-sm mt-1">{users.length} compte{users.length > 1 ? "s" : ""} enregistré{users.length > 1 ? "s" : ""}</p>
           </div>
-          <p className="text-ink-secondary text-sm">Aucun utilisateur trouvé.</p>
+          <button
+            onClick={load}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium transition-all duration-200 shrink-0"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            Actualiser
+          </button>
         </div>
-      ) : (
-        <div className="card p-0 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left px-6 py-4 text-xs font-medium text-ink-muted uppercase tracking-wide">Utilisateur</th>
-                <th className="text-left px-4 py-4 text-xs font-medium text-ink-muted uppercase tracking-wide">Rôle</th>
-                <th className="text-left px-4 py-4 text-xs font-medium text-ink-muted uppercase tracking-wide">Statut</th>
-                <th className="text-left px-4 py-4 text-xs font-medium text-ink-muted uppercase tracking-wide">Inscription</th>
-                <th className="text-right px-6 py-4 text-xs font-medium text-ink-muted uppercase tracking-wide">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filtered.map((u) => (
-                <tr key={u.id} className="hover:bg-canvas/50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-accent/15 flex items-center justify-center text-accent-hover font-semibold text-xs shrink-0">
+
+        {/* ── Cartes stats ── */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <StatCard
+            label="En attente" value={counts.EN_ATTENTE}
+            icon={<Clock className="w-5 h-5 text-amber-300" />}
+            color="bg-amber-500/10 border-amber-500/20"
+            active={filterStatut === "EN_ATTENTE"}
+            onClick={() => setFilterStatut(filterStatut === "EN_ATTENTE" ? "TOUS" : "EN_ATTENTE")}
+          />
+          <StatCard
+            label="Actifs" value={counts.ACTIF}
+            icon={<UserCheck className="w-5 h-5 text-green-300" />}
+            color="bg-green-500/10 border-green-500/20"
+            active={filterStatut === "ACTIF"}
+            onClick={() => setFilterStatut(filterStatut === "ACTIF" ? "TOUS" : "ACTIF")}
+          />
+          <StatCard
+            label="Suspendus" value={counts.SUSPENDU}
+            icon={<UserX className="w-5 h-5 text-red-300" />}
+            color="bg-red-500/10 border-red-500/20"
+            active={filterStatut === "SUSPENDU"}
+            onClick={() => setFilterStatut(filterStatut === "SUSPENDU" ? "TOUS" : "SUSPENDU")}
+          />
+        </div>
+
+        {/* ── Erreur ── */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+              className="flex items-center justify-between bg-red-500/10 border border-red-500/30 text-red-300 text-sm rounded-xl px-4 py-3 mb-5"
+            >
+              <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 shrink-0" />{error}</span>
+              <button onClick={() => setError(null)}><X className="w-4 h-4" /></button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Barre de filtres ── */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          {/* Recherche */}
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <input
+              type="search"
+              placeholder="Rechercher un utilisateur…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all"
+            />
+          </div>
+
+          {/* Filtre rôle */}
+          <div className="relative">
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value as Role | "TOUS")}
+              className="appearance-none pl-4 pr-9 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-300 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all cursor-pointer"
+            >
+              <option value="TOUS">Tous les rôles</option>
+              <option value="CANDIDAT">Candidat</option>
+              <option value="RECRUTEUR">Recruteur</option>
+              <option value="ADMINISTRATEUR">Admin</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+          </div>
+
+          {/* Reset */}
+          {(filterStatut !== "TOUS" || filterRole !== "TOUS" || search) && (
+            <button
+              onClick={() => { setFilterStatut("TOUS"); setFilterRole("TOUS"); setSearch(""); }}
+              className="px-4 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+            >
+              Réinitialiser
+            </button>
+          )}
+
+          <span className="ml-auto self-center text-sm text-slate-500 shrink-0">
+            {filtered.length} résultat{filtered.length > 1 ? "s" : ""}
+          </span>
+        </div>
+
+        {/* ── Tableau ── */}
+        {loading ? (
+          <div className="flex items-center justify-center gap-3 py-20 text-slate-400">
+            <div className="w-5 h-5 rounded-full border-2 border-blue-500/30 border-t-blue-500 animate-spin" />
+            Chargement des utilisateurs...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20 bg-white/3 rounded-2xl border border-white/10">
+            <Users className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+            <p className="text-slate-400">Aucun utilisateur trouvé.</p>
+          </div>
+        ) : (
+          <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+            {/* Header tableau */}
+            <div className="grid grid-cols-[1fr_130px_130px_120px_180px] gap-0 border-b border-white/10">
+              {["Utilisateur", "Rôle", "Statut", "Inscription", "Actions"].map((h, i) => (
+                <div key={h} className={`px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide ${i === 4 ? "text-right" : ""}`}>
+                  {h}
+                </div>
+              ))}
+            </div>
+
+            {/* Lignes */}
+            <div className="divide-y divide-white/5">
+              {filtered.map((u, i) => {
+                const statut = STATUT_CONFIG[u.statut];
+                return (
+                  <motion.div
+                    key={u.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2, delay: i * 0.03 }}
+                    className="grid grid-cols-[1fr_130px_130px_120px_180px] gap-0 items-center hover:bg-white/5 transition-colors duration-150 group"
+                  >
+                    {/* Utilisateur */}
+                    <div className="px-5 py-4 flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-violet-500/20 border border-white/10 flex items-center justify-center text-blue-300 font-bold text-sm shrink-0">
                         {u.prenom?.[0]?.toUpperCase() ?? u.email?.[0]?.toUpperCase() ?? "?"}
                       </div>
-                      <div>
-                        <p className="font-medium text-ink">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-white text-sm truncate">
                           {u.prenom && u.nom ? `${u.prenom} ${u.nom}` : "—"}
                         </p>
-                        <p className="text-xs text-ink-muted">{u.email}</p>
+                        <p className="text-xs text-slate-500 truncate">{u.email}</p>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    {u.id === me?.id ? (
-                      <span className="badge-neutral badge">{ROLE_CONFIG[u.role].label}</span>
-                    ) : (
-                      <select
-                        className="text-xs border border-border rounded-lg px-2 py-1 bg-surface text-ink focus:outline-none focus:ring-1 focus:ring-accent"
-                        value={u.role} disabled={actionId === u.id}
-                        onChange={(e) => act(u.id, () => adminService.updateUser(u.id, { role: e.target.value as Role }))}>
-                        <option value="CANDIDAT">Candidat</option>
-                        <option value="RECRUTEUR">Recruteur</option>
-                        <option value="ADMINISTRATEUR">Admin</option>
-                      </select>
-                    )}
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className={STATUT_CONFIG[u.statut].badge}>
-                      {STATUT_CONFIG[u.statut].label}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-xs text-ink-muted">
-                    {new Date(u.created_at).toLocaleDateString("fr-FR")}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2 justify-end">
-                      {u.statut === "EN_ATTENTE" && (
-                        <button onClick={() => act(u.id, () => adminService.updateUser(u.id, { statut: "ACTIF" }))}
-                          disabled={actionId === u.id}
-                          className="btn-sm bg-success-subtle text-success hover:bg-success/20 border-0">
-                          Valider
-                        </button>
-                      )}
-                      {u.statut === "ACTIF" && u.id !== me?.id && (
-                        <button onClick={() => act(u.id, () => adminService.updateUser(u.id, { statut: "SUSPENDU" }))}
-                          disabled={actionId === u.id}
-                          className="btn-sm bg-warning-subtle text-warning hover:bg-warning/20 border-0">
-                          Suspendre
-                        </button>
-                      )}
-                      {u.statut === "SUSPENDU" && (
-                        <button onClick={() => act(u.id, () => adminService.updateUser(u.id, { statut: "ACTIF" }))}
-                          disabled={actionId === u.id}
-                          className="btn-sm bg-accent-subtle text-accent-hover hover:bg-accent/20 border-0">
-                          Réactiver
-                        </button>
-                      )}
-                      {u.id !== me?.id && (
-                        <button onClick={() => setConfirmDel(u.id)}
-                          disabled={actionId === u.id}
-                          className="btn-sm bg-danger-subtle text-danger hover:bg-danger/20 border-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          Supprimer
-                        </button>
-                      )}
-                      {actionId === u.id && <span className="text-xs text-ink-muted px-2 py-1">...</span>}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
 
-      {/* Modal confirm delete */}
-      {confirmDel && (
-        <div className="fixed inset-0 bg-ink/40 backdrop-blur-sm flex items-center justify-center z-50 px-4 animate-fade-in">
-          <div className="bg-surface rounded-2xl shadow-modal max-w-sm w-full p-6 animate-scale-in">
-            <div className="w-10 h-10 rounded-xl bg-danger-subtle flex items-center justify-center mb-4">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M9 6v4M9 13h.01M3 15L9 3l6 12H3Z" stroke="#E3445E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <h3 className="font-display text-xl text-ink mb-1">Supprimer ce compte ?</h3>
-            <p className="text-ink-secondary text-sm mb-6">Cette action est irréversible et supprimera toutes les données associées.</p>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmDel(null)} className="btn-secondary flex-1">Annuler</button>
-              <button onClick={() => { act(confirmDel, async () => { await adminService.deleteUser(confirmDel); }); setConfirmDel(null); }}
-                className="btn-danger flex-1">Supprimer</button>
+                    {/* Rôle */}
+                    <div className="px-5 py-4">
+                      {u.id === me?.id ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                          <Shield className="w-3 h-3" /> {ROLE_CONFIG[u.role].label}
+                        </span>
+                      ) : (
+                        <div className="relative">
+                          <select
+                            className="appearance-none pl-2.5 pr-7 py-1 bg-white/5 border border-white/10 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-blue-500/50 cursor-pointer transition-all"
+                            value={u.role}
+                            disabled={actionId === u.id}
+                            onChange={(e) => act(u.id, () => adminService.updateUser(u.id, { role: e.target.value as Role }))}
+                          >
+                            <option value="CANDIDAT">Candidat</option>
+                            <option value="RECRUTEUR">Recruteur</option>
+                            <option value="ADMINISTRATEUR">Admin</option>
+                          </select>
+                          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500 pointer-events-none" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Statut */}
+                    <div className="px-5 py-4">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statut.cls}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statut.dot}`} />
+                        {statut.label}
+                      </span>
+                    </div>
+
+                    {/* Date inscription */}
+                    <div className="px-5 py-4 text-xs text-slate-500">
+                      {new Date(u.created_at).toLocaleDateString("fr-FR")}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="px-5 py-4">
+                      <div className="flex items-center gap-2 justify-end">
+                        {actionId === u.id ? (
+                          <div className="w-4 h-4 rounded-full border-2 border-blue-500/30 border-t-blue-500 animate-spin" />
+                        ) : (
+                          <>
+                            {u.statut === "EN_ATTENTE" && (
+                              <button
+                                onClick={() => act(u.id, () => adminService.updateUser(u.id, { statut: "ACTIF" }))}
+                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/30 transition-all"
+                              >
+                                Valider
+                              </button>
+                            )}
+                            {u.statut === "ACTIF" && u.id !== me?.id && (
+                              <button
+                                onClick={() => act(u.id, () => adminService.updateUser(u.id, { statut: "SUSPENDU" }))}
+                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition-all"
+                              >
+                                Suspendre
+                              </button>
+                            )}
+                            {u.statut === "SUSPENDU" && (
+                              <button
+                                onClick={() => act(u.id, () => adminService.updateUser(u.id, { statut: "ACTIF" }))}
+                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/30 transition-all"
+                              >
+                                Réactiver
+                              </button>
+                            )}
+                            {u.id !== me?.id && (
+                              <button
+                                onClick={() => setConfirmDel(u.id)}
+                                className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+
+      {/* ── Modal confirmation suppression ── */}
+      <AnimatePresence>
+        {confirmDel && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="bg-slate-900 border border-white/10 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.5)] max-w-sm w-full p-7"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-5">
+                <AlertTriangle className="w-6 h-6 text-red-400" />
+              </div>
+              <h3 className="text-xl font-bold text-white text-center mb-2">Supprimer ce compte ?</h3>
+              <p className="text-slate-400 text-sm text-center mb-7">
+                Cette action est irréversible et supprimera toutes les données associées à cet utilisateur.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmDel(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-white/10 bg-white/5 text-slate-300 text-sm font-medium hover:bg-white/10 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={() => {
+                    act(confirmDel, async () => { await adminService.deleteUser(confirmDel); });
+                    setConfirmDel(null);
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-500 transition-all flex items-center justify-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" /> Supprimer
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </DashboardLayout>
   );
 }
