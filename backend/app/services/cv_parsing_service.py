@@ -65,11 +65,13 @@ def warmup_parser() -> None:
     logger.info("CVParser prêt.")
 
 
-def _run_parse_sync(candidature_id: UUID, filepath: str) -> None:
+def _run_parse_sync(candidature_id: UUID, filepath: str) -> bool:
     """
     Logique synchrone du parsing — s'exécute dans le ThreadPoolExecutor.
     Ouvre sa propre session DB (thread-safe, pool SQLAlchemy).
     NE PAS appeler directement depuis le code async.
+
+    Retourne True si le parsing s'est terminé avec succès, False sinon.
     """
     db: Session = SessionLocal()
     try:
@@ -79,7 +81,7 @@ def _run_parse_sync(candidature_id: UUID, filepath: str) -> None:
 
         if not candidature:
             logger.error("Candidature %s introuvable pour parsing", candidature_id)
-            return
+            return False
 
         candidature.parse_statut = ParseStatut.EN_COURS
         db.commit()
@@ -88,29 +90,32 @@ def _run_parse_sync(candidature_id: UUID, filepath: str) -> None:
         if parser is None:
             candidature.parse_statut = ParseStatut.ECHEC
             db.commit()
-            return
+            return False
 
         try:
-            cv_data     = parser.parse(filepath)
-            json_result = cv_data.to_json(include_meta=False)
+            cv_data = parser.parse(filepath)
 
-            candidature.cv_data      = json_result
+            candidature.cv_data      = cv_data.to_json(include_meta=False)
             candidature.parse_statut = ParseStatut.TERMINE
             db.commit()
 
             logger.info(
-                "Parsing terminé — candidature %s : %d compétences, %d expériences",
+                "Parsing terminé — candidature %s : %d compétences, %d expériences, summary=%s",
                 candidature_id, len(cv_data.skills), len(cv_data.experiences),
+                "oui" if cv_data.summary else "non",
             )
+            return True
 
         except Exception as e:
             logger.error("Erreur parsing CV %s : %s", filepath, e, exc_info=True)
             candidature.parse_statut = ParseStatut.ECHEC
             db.commit()
+            return False
 
     except Exception as e:
         logger.error("Erreur inattendue dans _run_parse_sync : %s", e, exc_info=True)
         db.rollback()
+        return False
     finally:
         db.close()
 
@@ -133,7 +138,7 @@ async def parse_cv_background(candidature_id: UUID, filepath: str) -> None:
         "[async] Parsing CV lancé dans le thread pool — candidature %s",
         candidature_id,
     )
-    await loop.run_in_executor(
+    parsing_ok = await loop.run_in_executor(
         _PARSE_EXECUTOR,
         _run_parse_sync,
         candidature_id,
@@ -142,3 +147,13 @@ async def parse_cv_background(candidature_id: UUID, filepath: str) -> None:
     logger.info(
         "[async] Parsing CV terminé — candidature %s", candidature_id
     )
+
+    # ── Matching automatique après parsing réussi ──────────────────────
+    # Dans un try séparé pour ne pas masquer une erreur de matching
+    # comme une erreur de parsing.
+    if parsing_ok:
+        try:
+            from app.services.matching_background import run_matching_background
+            run_matching_background(candidature_id)
+        except Exception as e:
+            logger.error("Erreur matching background : %s", e, exc_info=True)

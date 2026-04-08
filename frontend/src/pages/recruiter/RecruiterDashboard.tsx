@@ -1,9 +1,4 @@
-/**
- * RecruiterDashboard.tsx — Espace recruteur
- * Fond sombre (DashboardLayout), onglets Mes offres / Candidatures / Marché,
- * formulaire de création/édition, fiche candidat avec CVProfileCard.
- * Tous les pollings d'analyse IA sont conservés intacts (logique métier inchangée).
- */
+
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -16,21 +11,23 @@ import { useAuthStore } from "@/store/authStore";
 import type { Offre, OffreCreate, StatutOffre, Candidature, StatutCandidature } from "@/types";
 import CVProfileCard from "@/components/candidature/CVProfileCard";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import MatchScoreCard, { type MatchResult } from "@/components/matching/MatchScoreCard";
+import matchingService from "@/services/matchingService";
 
 /* ── Constantes ── */
 const DOMAINES = ["Informatique", "Finance", "Marketing", "RH", "Commercial", "Ingénierie", "Autre"];
 
 const STATUT_OFFRE: Record<StatutOffre, { label: string; cls: string }> = {
-  PUBLIEE:   { label: "Publiée",   cls: "bg-green-500/20 text-green-300 border-green-500/30"  },
+  PUBLIEE: { label: "Publiée", cls: "bg-green-500/20 text-green-300 border-green-500/30" },
   BROUILLON: { label: "Brouillon", cls: "bg-slate-500/20 text-slate-300 border-slate-500/30" },
-  FERMEE:    { label: "Fermée",    cls: "bg-red-500/20 text-red-300 border-red-500/30"        },
+  FERMEE: { label: "Fermée", cls: "bg-red-500/20 text-red-300 border-red-500/30" },
 };
 
 const STATUT_CAND: Record<StatutCandidature, { label: string; cls: string }> = {
-  SOUMISE:         { label: "Soumise",   cls: "bg-blue-500/20 text-blue-300 border-blue-500/30"    },
-  EN_COURS_EXAMEN: { label: "En cours",  cls: "bg-amber-500/20 text-amber-300 border-amber-500/30" },
-  ACCEPTEE:        { label: "Acceptée",  cls: "bg-green-500/20 text-green-300 border-green-500/30" },
-  REFUSEE:         { label: "Refusée",   cls: "bg-red-500/20 text-red-300 border-red-500/30"       },
+  SOUMISE: { label: "Soumise", cls: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
+  EN_COURS_EXAMEN: { label: "En cours", cls: "bg-amber-500/20 text-amber-300 border-amber-500/30" },
+  ACCEPTEE: { label: "Acceptée", cls: "bg-green-500/20 text-green-300 border-green-500/30" },
+  REFUSEE: { label: "Refusée", cls: "bg-red-500/20 text-red-300 border-red-500/30" },
 };
 
 type Tab = "mes-offres" | "candidatures" | "marche";
@@ -160,27 +157,32 @@ function OffreForm({ initial, onSubmit, onCancel, loading }: {
 export default function RecruiterDashboard() {
   const { user } = useAuthStore();
 
-  const [tab, setTab]               = useState<Tab>("mes-offres");
-  const [mesOffres, setMesOffres]   = useState<Offre[]>([]);
-  const [autres, setAutres]         = useState<Offre[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState<string | null>(null);
-  const [showForm, setShowForm]     = useState(false);
-  const [editOffre, setEditOffre]   = useState<Offre | null>(null);
-  const [actionLoading, setAL]      = useState(false);
+  const [tab, setTab] = useState<Tab>("mes-offres");
+  const [mesOffres, setMesOffres] = useState<Offre[]>([]);
+  const [autres, setAutres] = useState<Offre[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [editOffre, setEditOffre] = useState<Offre | null>(null);
+  const [actionLoading, setAL] = useState(false);
   const [confirmDel, setConfirmDel] = useState<string | null>(null);
 
   /* Candidatures */
-  const [selOffreId, setSelOffreId]               = useState<string | null>(null);
-  const [cands, setCands]                         = useState<Candidature[]>([]);
-  const [candLoading, setCL]                      = useState(false);
+  const [selOffreId, setSelOffreId] = useState<string | null>(null);
+  const [cands, setCands] = useState<Candidature[]>([]);
+  const [candLoading, setCL] = useState(false);
 
   /* Fiche candidat détaillée */
-  const [selectedCand, setSelectedCand]           = useState<Candidature | null>(null);
+  const [selectedCand, setSelectedCand] = useState<Candidature | null>(null);
   const [candDetailLoading, setCandDetailLoading] = useState(false);
 
+  /* Score de matching */
+  const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
+  const [matchLoading, setMatchLoading] = useState(false);
+  const [detailTab, setDetailTab] = useState<"cv" | "match">("cv");
+
   /* Refs polling */
-  const listPollingRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+  const listPollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const modalPollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /* ── Chargement initial ── */
@@ -219,7 +221,7 @@ export default function RecruiterDashboard() {
 
   /* Nettoyage global */
   useEffect(() => () => {
-    if (listPollingRef.current)  clearInterval(listPollingRef.current);
+    if (listPollingRef.current) clearInterval(listPollingRef.current);
     if (modalPollingRef.current) clearInterval(modalPollingRef.current);
   }, []);
 
@@ -244,8 +246,28 @@ export default function RecruiterDashboard() {
     finally { setCL(false); }
   };
 
+  const fetchMatchResult = async (candId: string) => {
+    setMatchLoading(true);
+    try {
+      const result = await matchingService.getMatchResult(candId);
+      setMatchResult(result);
+    } catch { /* silencieux */ }
+    finally { setMatchLoading(false); }
+  };
+
+  /* Fetch / reset match score quand le candidat sélectionné change ou que le parsing se termine */
+  useEffect(() => {
+    if (!selectedCand) { setMatchResult(null); return; }
+    setMatchResult(null);
+    if (selectedCand.parse_statut === "TERMINE") {
+      fetchMatchResult(selectedCand.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCand?.id, selectedCand?.parse_statut]);
+
   const openCandDetail = async (cand: Candidature) => {
     setSelectedCand(cand);
+    setDetailTab("cv");
     if (cand.parse_statut === "TERMINE" && !cand.cv_data) {
       setCandDetailLoading(true);
       try {
@@ -325,17 +347,16 @@ export default function RecruiterDashboard() {
         {/* ── Onglets ── */}
         <div className="flex gap-1 bg-white/5 rounded-xl p-1 border border-white/10 w-fit mb-7">
           {([
-            { key: "mes-offres",   label: "Mes offres",      icon: <Briefcase className="w-4 h-4" />, count: mesOffres.length },
-            { key: "candidatures", label: "Candidatures",     icon: <Users className="w-4 h-4" />, count: null },
-            { key: "marche",       label: "Marché",           icon: <Globe className="w-4 h-4" />, count: autres.length },
+            { key: "mes-offres", label: "Mes offres", icon: <Briefcase className="w-4 h-4" />, count: mesOffres.length },
+            { key: "candidatures", label: "Candidatures", icon: <Users className="w-4 h-4" />, count: null },
+            { key: "marche", label: "Marché", icon: <Globe className="w-4 h-4" />, count: autres.length },
           ] as const).map((t) => (
             <button key={t.key}
               onClick={() => { setTab(t.key); if (t.key === "marche") fetchAutres(); }}
-              className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${
-                tab === t.key
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
-              }`}
+              className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${tab === t.key
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
             >
               {t.icon} {t.label}
               {t.count !== null && (
@@ -541,6 +562,19 @@ export default function RecruiterDashboard() {
 
                         {/* Statut + select */}
                         <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {/* Match Result Pill */}
+                          {c.parse_statut === "TERMINE" && c.match_score !== undefined && c.match_niveau !== undefined && (
+                            <span
+                              className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/5 border border-white/10 ${
+                                c.match_niveau === "EXCELLENT" ? "text-green-300" :
+                                c.match_niveau === "BON" ? "text-blue-300" :
+                                c.match_niveau === "PARTIEL" ? "text-amber-300" :
+                                "text-red-300"
+                              }`}
+                            >
+                              Matching: {c.match_score}%
+                            </span>
+                          )}
                           <span className={`hidden sm:inline-flex px-2.5 py-1 rounded-full text-xs font-semibold border ${STATUT_CAND[c.statut].cls}`}>
                             {STATUT_CAND[c.statut].label}
                           </span>
@@ -650,11 +684,69 @@ export default function RecruiterDashboard() {
                     Chargement de la fiche…
                   </div>
                 ) : (
-                  <CVProfileCard
-                    cvData={selectedCand.cv_data}
-                    parseStatut={selectedCand.parse_statut}
-                    cvNomFichier={selectedCand.cv_nom_fichier}
-                  />
+                  <>
+                    {/* ── Tabs navigation ── */}
+                    <div className="flex gap-4 border-b border-white/10 mb-5">
+                      <button
+                        onClick={() => setDetailTab("cv")}
+                        className={`pb-3 text-sm font-semibold border-b-2 transition-all ${
+                          detailTab === "cv"
+                            ? "border-blue-500 text-blue-400"
+                            : "border-transparent text-slate-400 hover:text-slate-200"
+                        }`}
+                      >
+                        Profil & CV
+                      </button>
+                      
+                      {(selectedCand.parse_statut === "TERMINE" || matchLoading) && (
+                        <button
+                          onClick={() => setDetailTab("match")}
+                          className={`pb-3 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+                            detailTab === "match"
+                              ? "border-amber-500 text-amber-400"
+                              : "border-transparent text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          {matchLoading ? (
+                            <>
+                              <div className="w-3.5 h-3.5 rounded-full border-2 border-slate-400 border-t-transparent animate-spin" />
+                              Score en cours...
+                            </>
+                          ) : matchResult ? (
+                            <>
+                              Matching : {matchResult.score_total}% 
+                              <span className="text-xs px-1.5 py-0.5 rounded-md bg-white/5 border border-white/10 hidden sm:inline-block">
+                                {matchResult.niveau}
+                              </span>
+                            </>
+                          ) : (
+                            <>Score de matching</>
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* ── Contenu ── */}
+                    {detailTab === "cv" && (
+                      <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}>
+                        <CVProfileCard
+                          cvData={selectedCand.cv_data}
+                          parseStatut={selectedCand.parse_statut}
+                          cvNomFichier={selectedCand.cv_nom_fichier}
+                          candidatureId={selectedCand.id}
+                          candidatNom={selectedCand.candidat_nom ?? undefined}
+                          candidatPrenom={selectedCand.candidat_prenom ?? undefined}
+                          candidatEmail={selectedCand.candidat_email ?? undefined}
+                        />
+                      </motion.div>
+                    )}
+
+                    {detailTab === "match" && (
+                      <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}>
+                        <MatchScoreCard match={matchResult} loading={matchLoading} />
+                      </motion.div>
+                    )}
+                  </>
                 )}
               </div>
 

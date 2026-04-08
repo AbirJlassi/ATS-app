@@ -53,6 +53,8 @@ export interface Candidature {
   offre_titre?: string; offre_domaine?: string;
   candidat_nom?: string; candidat_prenom?: string; candidat_email?: string;
   cv_data?: CVData;
+  match_score?: number;
+  match_niveau?: string;
 }
 
 export interface ApiError { detail: string; }

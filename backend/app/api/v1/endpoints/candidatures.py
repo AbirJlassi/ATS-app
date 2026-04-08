@@ -23,6 +23,15 @@ def _enrich(c, out: CandidatureOut) -> CandidatureOut:
     if c.offre:
         out.offre_titre   = c.offre.titre
         out.offre_domaine = c.offre.domaine
+    mr = getattr(c, "match_result", None)
+    if mr:
+        # SQLAlchemy may return a list depending on how the backref is configured
+        if isinstance(mr, list) and len(mr) > 0:
+            out.match_score = mr[0].score_total
+            out.match_niveau = mr[0].niveau
+        elif not isinstance(mr, list):
+            out.match_score = mr.score_total
+            out.match_niveau = mr.niveau
     # Désérialisation explicite — fiable car on contrôle le type
     out.cv_data = deserialize_cv_data(c.cv_data)
     return out

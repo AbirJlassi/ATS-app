@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, List, Any
 import json
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from app.models.candidature import StatutCandidature, ParseStatut
 
@@ -61,8 +61,20 @@ class CandidatureOut(BaseModel):
     candidat_prenom: Optional[str] = None
     candidat_email:  Optional[str] = None
 
-    # cv_data est déjà désérialisé par l'endpoint — pas de model_validator
+    match_score:  Optional[int] = None
+    match_niveau: Optional[str] = None
+
     cv_data: Optional[CVDataOut] = None
+
+    @field_validator("cv_data", mode="before")
+    @classmethod
+    def parse_cv_data_str(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except Exception:
+                return None
+        return v
 
     model_config = {"from_attributes": True}
 
