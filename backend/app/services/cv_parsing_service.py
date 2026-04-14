@@ -154,6 +154,7 @@ async def parse_cv_background(candidature_id: UUID, filepath: str) -> None:
     if parsing_ok:
         try:
             from app.services.matching_background import run_matching_background
-            run_matching_background(candidature_id)
+            await loop.run_in_executor(None, run_matching_background, candidature_id)
+
         except Exception as e:
             logger.error("Erreur matching background : %s", e, exc_info=True)

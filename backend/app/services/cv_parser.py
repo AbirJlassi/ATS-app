@@ -926,7 +926,7 @@ JSON :"""
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.3,   # légèrement créatif mais cohérent
+                temperature=0.1,  # légèrement créatif mais cohérent
                 max_tokens=150,    # 2-3 phrases max
             )
             summary = response.choices[0].message.content.strip()

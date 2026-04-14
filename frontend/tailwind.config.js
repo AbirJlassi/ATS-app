@@ -1,75 +1,82 @@
+/**
+ * tailwind.config.js — Configuration Tailwind FairHire
+ *
+ * IMPORTANT : darkMode est réglé sur "class" pour que
+ * la classe `dark` sur <html> active les variantes dark:.
+ */
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  // Active le dark mode via la classe CSS `.dark` sur <html>
+  darkMode: "class",
+
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+
   theme: {
     extend: {
+      fontFamily: {
+        // DM Sans pour le corps (chargé via Google Fonts dans index.html)
+        sans: ["DM Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+        // Instrument Serif pour les titres
+        serif: ["Instrument Serif", "Georgia", "serif"],
+      },
+
       colors: {
-        // Premium Light Theme Palette
+        // Brand
         brand: {
-          primary: "#0F172A",   // Very dark slate, almost black for primary accents
-          secondary: "#334155", // Slate 700
-          accent: "#2563EB",    // Sharp crisp blue for buttons
-          hover: "#1D4ED8",     // Darker blue for hover states
-          surface: "#F8FAFC",   // Slate 50
+          primary: "#1D4ED8",
+          secondary: "#1E40AF",
+          accent: "#3B82F6",
+          hover: "#2563EB",
+          surface: "rgba(59,130,246,0.08)",
         },
-        surface: {
-          50: '#F8FAFC',
-          100: '#F1F5F9',
-          200: '#E2E8F0',
-          300: '#CBD5E1',
-          glass: 'rgba(255, 255, 255, 0.7)',
-        },
+        // Ink
         ink: {
-          DEFAULT: "#0F172A",   // Slate 900
-          secondary: "#475569", // Slate 600
-          muted: "#94A3B8",     // Slate 400
+          DEFAULT: "#0F172A",
+          secondary: "#4B5563",
+          muted: "#9CA3AF",
         },
-        danger: {
-          DEFAULT: "#EF4444",
-          hover: "#DC2626",
-          subtle: "#FEF2F2",
+        // Surface
+        surface: {
+          50: "#F4F5F7",
+          100: "#EEF0F4",
+          200: "#E2E6ED",
+          300: "#C9D0DC",
         },
+        // Sémantique
         success: {
           DEFAULT: "#10B981",
           hover: "#059669",
-          subtle: "#ECFDF5",
+          subtle: "rgba(16,185,129,0.1)",
         },
         warning: {
           DEFAULT: "#F59E0B",
           hover: "#D97706",
-          subtle: "#FFFBEB",
-        }
+          subtle: "rgba(245,158,11,0.1)",
+        },
+        danger: {
+          DEFAULT: "#EF4444",
+          hover: "#DC2626",
+          subtle: "rgba(239,68,68,0.1)",
+        },
       },
-      fontFamily: {
-        display: ['"Inter"', 'system-ui', 'sans-serif'],
-        sans: ['"Inter"', 'system-ui', 'sans-serif'],
-      },
+
       boxShadow: {
-        'glass': '0 4px 30px rgba(0, 0, 0, 0.05)',
-        'glass-hover': '0 10px 40px rgba(0, 0, 0, 0.08)',
-        'soft': '0 2px 10px rgba(0,0,0,0.02), 0 1px 3px rgba(0,0,0,0.03)',
-        'float': '0 20px 40px -10px rgba(0,0,0,0.05)',
+        soft: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+        glass: "0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)",
+        "glass-hover": "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+        dark: "0 4px 24px rgba(0,0,0,0.4)",
       },
-      backdropBlur: {
-        'xs': '2px',
-        'md': '8px',
-      },
-      animation: {
-        "fade-in": "fadeIn 0.4s ease-out forwards",
-        "slide-up": "slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-        "scale-in": "scaleIn 0.3s ease-out forwards",
-        "float": "float 3s ease-in-out infinite",
-      },
-      keyframes: {
-        fadeIn: { from: { opacity: "0" }, to: { opacity: "1" } },
-        slideUp: { from: { opacity: "0", transform: "translateY(12px)" }, to: { opacity: "1", transform: "translateY(0)" } },
-        scaleIn: { from: { opacity: "0", transform: "scale(0.96)" }, to: { opacity: "1", transform: "scale(1)" } },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
-        }
+
+      borderRadius: {
+        "2xl": "1rem",
+        "3xl": "1.25rem",
+        "4xl": "1.5rem",
       },
     },
   },
+
   plugins: [],
 };

@@ -49,25 +49,8 @@ def warmup_embedder() -> None:
 
 
 # ── Normalisation des compétences ──────────────────────────────────────────
-# Dictionnaire d'alias pour unifier les variantes orthographiques
-_SKILL_ALIASES: dict[str, str] = {
-    "reactjs": "react", "react.js": "react", "react js": "react",
-    "vuejs": "vue", "vue.js": "vue",
-    "angularjs": "angular", "angular.js": "angular",
-    "nodejs": "node", "node.js": "node",
-    "nextjs": "next", "next.js": "next",
-    "typescript": "ts", "javascript": "js",
-    "postgresql": "postgres", "mysql": "sql", "mariadb": "sql",
-    "mongodb": "mongo",
-    "scikit-learn": "sklearn", "scikit learn": "sklearn",
-    "machine learning": "ml", "deep learning": "dl",
-    "natural language processing": "nlp",
-    "amazon web services": "aws",
-    "google cloud platform": "gcp",
-    "microsoft azure": "azure",
-    "fastapi": "fastapi", "fast api": "fastapi",
-    "spring boot": "spring", "springboot": "spring",
-}
+# Alias définis dans skill_aliases.py (groupes de synonymes symétriques)
+from app.services.skill_aliases import SKILL_ALIASES as _SKILL_ALIASES
 
 
 def _normalize_skill(skill: str) -> str:
@@ -85,12 +68,11 @@ def _normalize_skills(skills: list[str]) -> set[str]:
 # ── Extraction des années d'expérience depuis les expériences parsées ──────
 def _extract_years_experience(experiences: list[dict]) -> float:
     """
-    Estime le total d'années d'expérience à partir des expériences extraites.
+    Estime le total d'années d'expérience en calculant l'écart entre
+    la date de début de la première expérience (listée en dernier)
+    et la date de fin de la dernière expérience (listée en premier).
 
-    Stratégie :
-        1. Cherche les périodes de type "Jan 2020 - Présent" ou "2019 - 2022"
-        2. Calcule la durée de chaque poste
-        3. Somme sans chevauchements (heuristique : on somme simplement)
+    Ex : [2022-Présent, 2019-2022, 2017-2019] → Présent - 2017
     """
     from datetime import date
     import re
@@ -111,36 +93,48 @@ def _extract_years_experience(experiences: list[dict]) -> float:
         s = s.strip().lower()
         if s in PRESENT_WORDS:
             return date.today()
-        # "jan 2022" ou "janvier 2022"
         m = re.match(r"([a-zé]+)\.?\s*(\d{4})", s)
         if m:
             month_key = m.group(1)[:3]
             month = ALL_MONTHS.get(month_key)
             if month:
                 return date(int(m.group(2)), month, 1)
-        # "2022" seul
         m = re.match(r"^(\d{4})$", s)
         if m:
             return date(int(m.group(1)), 1, 1)
         return None
 
-    total_months = 0
+    all_starts = []
+    all_ends   = []
 
     for exp in experiences:
         period = (exp.get("period") or "").strip()
         if not period:
             continue
-        # Séparateur : " - ", " – ", " — ", " / "
         parts = re.split(r"\s*[-–—/]\s*", period, maxsplit=1)
         if len(parts) < 2:
             continue
         start = parse_date(parts[0])
         end   = parse_date(parts[1])
-        if start and end and end >= start:
-            months = (end.year - start.year) * 12 + (end.month - start.month)
-            total_months += max(0, months)
+        if start:
+            all_starts.append(start)
+        if end:
+            all_ends.append(end)
 
-    return round(total_months / 12, 1)
+    if not all_starts or not all_ends:
+        return 0.0
+
+    earliest_start = min(all_starts)
+    latest_end     = max(all_ends)
+
+    if latest_end < earliest_start:
+        return 0.0
+
+    months = (
+        (latest_end.year  - earliest_start.year)  * 12 +
+        (latest_end.month - earliest_start.month)
+    )
+    return round(max(0, months) / 12, 1)
 
 
 # ── Dataclass résultat ─────────────────────────────────────────────────────
@@ -193,7 +187,7 @@ class RulesLayer:
         """
         Score de correspondance des compétences (0-100).
 
-        Méthode : intersection Jaccard pondérée.
+        Méthode : intersection  pondérée.
         - On normalise les deux listes (alias, lowercase)
         - On compte les skills de l'offre couverts par le CV
         - Bonus si le CV a plus de skills que requis (max +10pts)
@@ -222,9 +216,12 @@ class RulesLayer:
         self,
         experiences: list[dict],
         annees_min: int,
-    ) -> int:
+    ) -> tuple[int, float]:
         """
-        Score d'expérience (0-100).
+        Score d'expérience (0-100) et années estimées.
+
+        Returns:
+            (score, years_cv) pour réutilisation sans recalcul.
 
         - 0 ans requis              → 100
         - candidat ≥ requis         → 100
@@ -232,18 +229,18 @@ class RulesLayer:
         - candidat = requis - 2 ans → 40
         - candidat < requis - 2 ans → 10
         """
-        if annees_min <= 0:
-            return 100
-
         years_cv = _extract_years_experience(experiences)
         logger.debug("Expérience estimée : %.1f ans (requis : %d)", years_cv, annees_min)
 
+        if annees_min <= 0:
+            return 100, years_cv
+
         if years_cv >= annees_min:
-            return 100
+            return 100, years_cv
         gap = annees_min - years_cv
-        if gap <= 1:   return 75
-        if gap <= 2:   return 40
-        return 10
+        if gap <= 1:   return 75, years_cv
+        if gap <= 2:   return 40, years_cv
+        return 10, years_cv
 
     def compute_formation_score(
         self,
@@ -318,14 +315,17 @@ class EmbeddingLayer:
         "machine learning" ≈ "intelligence artificielle"
     """
 
+    
     def compute(
-        self,
-        cv_summary:        Optional[str],
-        cv_skills:         list[str],
-        offre_titre:       str,
-        offre_description: str,
-        offre_skills:      list[str],
-    ) -> float:
+            self,
+            cv_summary:        Optional[str],
+            cv_skills:         list[str],
+            cv_experiences:    list[dict],
+            offre_titre:       str,
+            offre_description: str,
+            offre_skills:      list[str],
+        ) -> float:
+
         """
         Retourne un score sémantique entre 0 et 100.
         Retourne 50 (neutre) si le modèle n'est pas disponible.
@@ -337,10 +337,26 @@ class EmbeddingLayer:
 
         import numpy as np
 
-        # Texte candidat : résumé + skills
-        skills_str  = ", ".join(cv_skills[:20]) if cv_skills else ""
-        candidat_text = f"{cv_summary or ''}\nCompétences : {skills_str}".strip()
+        # Texte candidat : résumé + expériences + skills
+        skills_str = ", ".join(cv_skills[:20]) if cv_skills else ""
 
+        exp_parts = []
+        for exp in cv_experiences[:5]:  # on prend les 5 plus récentes (listées en premier)
+            title   = exp.get("title", "")
+            company = exp.get("company", "")
+            if title or company:
+                exp_parts.append(f"{title} chez {company}".strip(" chez "))
+
+        exp_str = " | ".join(exp_parts) if exp_parts else ""
+
+        candidat_text = "\n".join(filter(None, [
+            cv_summary or "",
+            f"Expériences : {exp_str}" if exp_str else "",
+            f"Compétences : {skills_str}" if skills_str else "",
+        ])).strip()
+
+
+        
         # Texte offre : titre + description + skills requis
         offre_skills_str = ", ".join(offre_skills) if offre_skills else ""
         offre_text = (
@@ -352,11 +368,21 @@ class EmbeddingLayer:
             return 50.0
 
         try:
-            embeddings  = embedder.encode([candidat_text, offre_text], normalize_embeddings=True)
-            similarity  = float(np.dot(embeddings[0], embeddings[1]))
-            # Cosine similarity ∈ [-1, 1] → ramené à [0, 100]
-            score = round((similarity + 1) / 2 * 100, 1)
-            logger.debug("Score sémantique : %.1f (cosine=%.3f)", score, similarity)
+            embeddings = embedder.encode([candidat_text, offre_text], normalize_embeddings=True)
+            similarity = float(np.dot(embeddings[0], embeddings[1]))
+
+            # Remapping sur une plage réaliste pour ce modèle sur texte RH
+            # En pratique : profil hors-sujet ≈ 0.20, profil parfait ≈ 0.90
+            LOW  = 0.20   # similarité minimale observée (profil totalement non-pertinent)
+            HIGH = 0.90   # similarité maximale observée (profil quasi-identique à l'offre)
+
+            clamped = max(LOW, min(HIGH, similarity))
+            score   = round((clamped - LOW) / (HIGH - LOW) * 100, 1)
+
+            logger.debug(
+                "Score sémantique : %.1f (cosine=%.3f, clamped=[%.2f,%.2f])",
+                score, similarity, LOW, HIGH
+            )
             return score
 
         except Exception as e:
@@ -377,20 +403,42 @@ class LLMJudge:
 
     def explain(
         self,
-        score_total:      int,
-        niveau:           str,
-        skills_matchees:  list[str],
+        score_total:       int,
+        niveau:            str,
+        skills_matchees:   list[str],
         skills_manquantes: list[str],
-        annees_cv:        float,
-        annees_requises:  int,
-        offre_titre:      str,
-        offre_domaine:    str,
-        cv_summary:       Optional[str],
+        annees_cv:         float,
+        annees_requises:   int,
+        offre_titre:       str,
+        offre_domaine:     str,
+        cv_summary:        Optional[str],
+        cv_experiences:    list[dict],   # ← nouveau
+        cv_education:      list[dict],   # ← nouveau
     ) -> dict[str, str]:
         """
         Retourne {"points_forts": ..., "points_faibles": ..., "recommandation": ...}
         Retourne des valeurs par défaut si Groq n'est pas disponible.
         """
+
+        # Formater les expériences
+        exp_lines = []
+        for exp in cv_experiences[:5]:
+            title   = exp.get("title", "")
+            company = exp.get("company", "")
+            period  = exp.get("period", "")
+            exp_lines.append(f"  • {title} chez {company} ({period})".strip(" chez ()"))
+        exp_str = "\n".join(exp_lines) if exp_lines else "  • Non disponible"
+
+        # Formater la formation
+        edu_lines = []
+        for edu in cv_education[:3]:
+            degree  = edu.get("degree", "")
+            inst    = edu.get("institution", "")
+            year    = edu.get("year", "")
+            edu_lines.append(f"  • {degree} — {inst} ({year})".strip(" — ()"))
+        edu_str = "\n".join(edu_lines) if edu_lines else "  • Non disponible"
+
+
         try:
             from groq import Groq
             client = Groq(api_key=os.getenv("GROQ_API_KEY", ""))
@@ -402,23 +450,27 @@ class LLMJudge:
 
         prompt = f"""Tu es un expert RH. Génère une évaluation concise d'un candidat pour un poste.
 
-POSTE : {offre_titre} ({offre_domaine})
-SCORE GLOBAL : {score_total}/100 ({niveau})
+        POSTE : {offre_titre} ({offre_domaine})
+        SCORE GLOBAL : {score_total}/100 ({niveau})
 
-DONNÉES :
-- Compétences correspondantes : {', '.join(skills_matchees) if skills_matchees else 'aucune'}
-- Compétences manquantes      : {', '.join(skills_manquantes) if skills_manquantes else 'aucune'}
-- Expérience candidat         : {annees_cv} ans  |  Requis : {annees_requises} ans
-- Résumé candidat             : {cv_summary or 'Non disponible'}
+        PROFIL CANDIDAT :
+        - Résumé         : {cv_summary or 'Non disponible'}
+        - Expériences ({annees_cv} ans au total) :
+        {exp_str}
+        - Formation :
+        {edu_str}
+        - Compétences correspondantes : {', '.join(skills_matchees) if skills_matchees else 'aucune'}
+        - Compétences manquantes      : {', '.join(skills_manquantes) if skills_manquantes else 'aucune'}
+        - Expérience requise          : {annees_requises} ans
 
-Réponds UNIQUEMENT en JSON valide avec exactement ces 3 clés :
-{{
-  "points_forts":   "1-2 phrases sur les atouts du candidat pour CE poste",
-  "points_faibles": "1-2 phrases sur les lacunes pour CE poste (ou 'Aucun point faible majeur' si score > 80)",
-  "recommandation": "Une phrase d'action pour le recruteur : Entretien recommandé / À considérer avec réserve / Profil insuffisant"
-}}
+        Réponds UNIQUEMENT en JSON valide avec exactement ces 3 clés :
+        {{
+        "points_forts":   "1-2 phrases sur les atouts du candidat pour CE poste",
+        "points_faibles": "1-2 phrases sur les lacunes pour CE poste (ou 'Aucun point faible majeur' si score > 80)",
+        "recommandation": "Une phrase d'action pour le recruteur : Entretien recommandé / À considérer avec réserve / Profil insuffisant"
+        }}
 
-Sois factuel, précis, et base-toi uniquement sur les données fournies."""
+        Sois factuel, précis, et base-toi uniquement sur les données fournies."""
 
         try:
             raw = client.chat.completions.create(
@@ -509,15 +561,14 @@ class MatchingEngine:
         score_skills, matchees, manquantes = self.rules.compute_skills_score(
             cv_skills, offre_skills
         )
-        score_exp = self.rules.compute_experience_score(cv_experiences, annees_min)
+        score_exp, annees_cv = self.rules.compute_experience_score(cv_experiences, annees_min)
         score_edu = self.rules.compute_formation_score(cv_education, offre_domaine)
 
         # ── Couche 2 : Embeddings ───────────────────────────────
         logger.info("Matching couche 2 — embeddings sémantiques")
         score_sem = self.embedder.compute(
-            cv_summary, cv_skills, offre_titre, offre_desc, offre_skills
+            cv_summary, cv_skills, cv_experiences, offre_titre, offre_desc, offre_skills
         )
-
         # ── Score final ─────────────────────────────────────────
         score_total = self.rules.compute_final_score(
             score_skills, score_exp, score_sem, score_edu
@@ -526,11 +577,11 @@ class MatchingEngine:
 
         # ── Couche 3 : LLM Judge ────────────────────────────────
         logger.info("Matching couche 3 — LLM Judge (explication)")
-        annees_cv = _extract_years_experience(cv_experiences)
         explanation = self.judge.explain(
-            score_total, niveau, matchees, manquantes,
-            annees_cv, annees_min, offre_titre, offre_domaine, cv_summary,
-        )
+        score_total, niveau, matchees, manquantes,
+        annees_cv, annees_min, offre_titre, offre_domaine, cv_summary,
+        cv_experiences, cv_education,   # ← ajout
+    )
 
         logger.info(
             "Matching terminé — score=%d (%s) | skills=%d/%d | exp=%.1f/%d ans | sem=%.1f",
