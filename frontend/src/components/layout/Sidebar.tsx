@@ -37,8 +37,8 @@ interface NavItem {
     label: string;
     href: string;
     icon: React.ReactNode;
-    /** Badge numérique optionnel (ex: candidatures en attente) */
     badge?: number;
+    activePatterns?: string[];
 }
 
 /* ── Config navigation par rôle ────────────────────────────── */
@@ -55,11 +55,13 @@ function getNavItems(role: Role | null): NavItem[] {
                     label: "Offres disponibles",
                     href: "/candidate/dashboard?tab=offres",
                     icon: <Globe className="w-[18px] h-[18px]" />,
+                    activePatterns: ["/candidate/offres/"],
                 },
                 {
                     label: "Mes candidatures",
                     href: "/candidate/dashboard?tab=candidatures",
                     icon: <Briefcase className="w-[18px] h-[18px]" />,
+                    activePatterns: ["/candidate/candidatures/"],
                 },
                 {
                     label: "Mon profil",
@@ -79,16 +81,13 @@ function getNavItems(role: Role | null): NavItem[] {
                     label: "Mes offres",
                     href: "/recruiter/dashboard?tab=mes-offres",
                     icon: <Briefcase className="w-[18px] h-[18px]" />,
+                    activePatterns: ["/recruiter/offres/"],
                 },
                 {
                     label: "Candidatures",
                     href: "/recruiter/dashboard?tab=candidatures",
                     icon: <Users className="w-[18px] h-[18px]" />,
-                },
-                {
-                    label: "Marché",
-                    href: "/recruiter/dashboard?tab=marche",
-                    icon: <Globe className="w-[18px] h-[18px]" />,
+                    activePatterns: ["/recruiter/candidatures/"],
                 },
                 {
                     label: "Mon profil",
@@ -172,18 +171,21 @@ export default function Sidebar() {
     };
 
     /* ── Vérifie si un item est actif ── */
-    const isActive = (href: string) => {
-        const [path, query] = href.split("?");
+    const isActive = (item: NavItem) => {
+        // 1. Sous-routes dédiées (ex: /candidate/offres/:id)
+        if (item.activePatterns) {
+            for (const pattern of item.activePatterns) {
+                if (location.pathname.startsWith(pattern)) return true;
+            }
+        }
+        // 2. Correspondance classique path + query tab
+        const [path, query] = item.href.split("?");
         const searchParam = new URLSearchParams(query);
         const tab = searchParam.get("tab");
-
-        // Correspondance de route
         if (location.pathname !== path) return false;
-        // Si l'item a un paramètre tab, vérifier aussi le query string
         if (tab) {
             return new URLSearchParams(location.search).get("tab") === tab;
         }
-        // Item "Tableau de bord" actif seulement si pas d'onglet sélectionné
         return !new URLSearchParams(location.search).get("tab");
     };
 
@@ -254,7 +256,7 @@ export default function Sidebar() {
             <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2">
                 <div className="space-y-0.5">
                     {navItems.map((item) => {
-                        const active = isActive(item.href);
+                        const active = isActive(item);
                         return (
                             <Link
                                 key={item.href}

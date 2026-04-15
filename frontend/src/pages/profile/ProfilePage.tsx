@@ -1,14 +1,23 @@
 /**
  * ProfilePage.tsx — Profil utilisateur
- * Page de modification des informations personnelles et du mot de passe.
- * Fond sombre cohérent avec les dashboards via DashboardLayout.
  */
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Mail, Phone, Building2, Lock, Check, AlertCircle, Shield } from "lucide-react";
+import { User, Mail, Phone, Building2, Lock, Check, AlertCircle, Shield, ChevronDown } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import authService from "@/services/authService";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+
+const DEPARTEMENTS = [
+  "Ingénierie / Technique",
+  "Data / IA",
+  "Produit / Gestion de projet",
+  "Ventes / Développement commercial",
+  "Marketing",
+  "Ressources humaines",
+  "Finance",
+  "Opérations / Support",
+];
 
 const ROLE_META: Record<string, { label: string; cls: string }> = {
   CANDIDAT: { label: "Candidat", cls: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
@@ -27,7 +36,7 @@ function DarkField({
   const [focused, setFocused] = useState(false);
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-500 dark:text-gray-600 dark:text-gray-600 dark:text-slate-400 mb-1.5">{label}</label>
+      <label htmlFor={id} className="block text-sm font-medium text-gray-500 dark:text-slate-400 mb-1.5">{label}</label>
       <div className={`flex items-center rounded-xl border transition-all duration-200 ${readOnly
           ? "bg-black/3 dark:bg-white/3 border-black/5 dark:border-white/5"
           : focused
@@ -42,10 +51,83 @@ function DarkField({
           readOnly={readOnly}
           onChange={(e) => onChange?.(e.target.value)}
           onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-          className={`w-full bg-transparent px-3 py-3 text-sm focus:outline-none ${readOnly ? "text-gray-500 dark:text-slate-500 cursor-default" : "text-gray-700 dark:text-slate-200 placeholder:text-gray-500 dark:text-slate-600"
+          className={`w-full bg-transparent px-3 py-3 text-sm focus:outline-none ${readOnly
+              ? "text-gray-500 dark:text-slate-500 cursor-default"
+              : "text-gray-700 dark:text-slate-200 placeholder:text-gray-500 dark:placeholder:text-slate-600"
             }`}
         />
       </div>
+    </div>
+  );
+}
+
+/* ── Select département + champ libre si Autre ── */
+function DepartementField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const isCustom = value !== "" && !DEPARTEMENTS.includes(value);
+  const [showCustom, setShowCustom] = useState(isCustom);
+  const [focused, setFocused] = useState(false);
+
+  const selectValue = showCustom ? "__autre__" : value;
+
+  const handleSelect = (v: string) => {
+    if (v === "__autre__") {
+      setShowCustom(true);
+      onChange("");
+    } else {
+      setShowCustom(false);
+      onChange(v);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Select */}
+      <div>
+        <label className="block text-sm font-medium text-gray-500 dark:text-slate-400 mb-1.5">Département</label>
+        <div className={`flex items-center rounded-xl border transition-all duration-200 ${focused
+            ? "bg-black/5 dark:bg-white/5 border-blue-500/50 ring-2 ring-blue-500/10"
+            : "bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 hover:border-black/15 dark:border-white/15"
+          }`}>
+          <div className={`pl-4 shrink-0 transition-colors duration-200 ${focused ? "text-blue-400" : "text-gray-500 dark:text-slate-600"}`}>
+            <Building2 className="w-4 h-4" />
+          </div>
+          <select
+            value={selectValue}
+            onChange={(e) => handleSelect(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            className="w-full bg-transparent px-3 py-3 text-sm text-gray-700 dark:text-slate-200 focus:outline-none appearance-none cursor-pointer dark:[color-scheme:dark]"
+          >
+            <option value="">Sélectionner un département</option>
+            {DEPARTEMENTS.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+            <option value="__autre__">Autre…</option>
+          </select>
+          <div className="pr-4 shrink-0 text-gray-500 dark:text-slate-600 pointer-events-none">
+            <ChevronDown className="w-4 h-4" />
+          </div>
+        </div>
+      </div>
+
+      {/* Champ texte libre si "Autre" */}
+      <AnimatePresence>
+        {showCustom && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.15 }}
+          >
+            <DarkField
+              id="p-dept-autre"
+              label="Préciser le département"
+              placeholder="ex: Legal, Communication…"
+              value={value}
+              onChange={onChange}
+              icon={<Building2 className="w-4 h-4" />}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -111,16 +193,22 @@ export default function ProfilePage() {
           transition={{ duration: 0.35 }}
           className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-6 mb-6 flex items-center gap-5"
         >
-          {/* Avatar */}
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-gray-900 dark:text-white font-bold text-2xl shadow-md shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-bold text-2xl shadow-md shrink-0">
             {initials}
           </div>
           <div>
             <p className="font-bold text-gray-900 dark:text-white text-xl">{displayName}</p>
-            <p className="text-gray-500 dark:text-gray-600 dark:text-slate-400 text-sm mt-0.5">{user?.email}</p>
-            <span className={`inline-flex items-center gap-1.5 mt-2 text-xs font-semibold px-2.5 py-1 rounded-full border ${roleMeta.cls}`}>
-              <Shield className="w-3 h-3" /> {roleMeta.label}
-            </span>
+            <p className="text-gray-500 dark:text-slate-400 text-sm mt-0.5">{user?.email}</p>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${roleMeta.cls}`}>
+                <Shield className="w-3 h-3" /> {roleMeta.label}
+              </span>
+              {user?.role === "RECRUTEUR" && user?.departement && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20">
+                  <Building2 className="w-3 h-3" /> {user.departement}
+                </span>
+              )}
+            </div>
           </div>
         </motion.div>
 
@@ -169,9 +257,10 @@ export default function ProfilePage() {
               icon={<Phone className="w-4 h-4" />} />
 
             {user?.role === "RECRUTEUR" && (
-              <DarkField id="p-dept" label="Département" placeholder="ex: Ressources Humaines"
-                value={form.departement} onChange={(v) => upd("departement", v)}
-                icon={<Building2 className="w-4 h-4" />} />
+              <DepartementField
+                value={form.departement}
+                onChange={(v) => upd("departement", v)}
+              />
             )}
           </div>
 
@@ -199,7 +288,7 @@ export default function ProfilePage() {
 
           {/* Bouton submit */}
           <button type="submit" disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-blue-600 text-gray-900 dark:text-white font-semibold hover:bg-blue-500 transition-all shadow-md hover:shadow-[0_4px_20px_rgba(37,99,235,0.4)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-all shadow-md hover:shadow-[0_4px_20px_rgba(37,99,235,0.4)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed text-sm"
           >
             {loading ? (
               <><div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Enregistrement…</>

@@ -22,9 +22,8 @@ function Field({
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-ink mb-1.5">{label}</label>
-      <div className={`relative flex items-center rounded-xl border transition-all duration-200 bg-white shadow-sm ${
-        focused ? "border-blue-400 ring-4 ring-blue-500/10" : "border-surface-200"
-      }`}>
+      <div className={`relative flex items-center rounded-xl border transition-all duration-200 bg-white shadow-sm ${focused ? "border-blue-400 ring-4 ring-blue-500/10" : "border-surface-200"
+        }`}>
         <div className={`pl-3.5 transition-colors duration-200 ${focused ? "text-blue-500" : "text-ink-muted"}`}>
           {icon}
         </div>
@@ -42,14 +41,15 @@ function Field({
 
 /* ── Page principale ── */
 export default function RegisterPage() {
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     email: "", password: "", confirm: "", role: "CANDIDAT" as Role,
     nom: "", prenom: "", telephone: "", departement: "",
   });
-  const [error,   setError]   = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deptAutre, setDeptAutre] = useState(false);
 
   const upd = (f: string, v: string) => setForm((p) => ({ ...p, [f]: v }));
 
@@ -79,7 +79,7 @@ export default function RegisterPage() {
         </div>
         <h2 className="text-2xl font-bold text-ink mb-2">Compte créé !</h2>
         <p className="text-ink-secondary text-sm leading-relaxed mb-8">
-          Votre compte est en attente de validation par un administrateur.<br/>Vous serez notifié dès son activation.
+          Votre compte est en attente de validation par un administrateur.<br />Vous serez notifié dès son activation.
         </p>
         <button
           onClick={() => navigate("/login")}
@@ -103,15 +103,15 @@ export default function RegisterPage() {
           <Link to="/" className="inline-flex items-center gap-2.5 mb-6">
             <div className="w-9 h-9 rounded-xl bg-brand-primary flex items-center justify-center shadow-sm">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                <line x1="10" y1="3" x2="10" y2="16" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round"/>
-                <line x1="3" y1="7" x2="17" y2="7" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round"/>
-                <line x1="3" y1="7" x2="3" y2="10" stroke="#60A5FA" strokeWidth="1.4" strokeLinecap="round"/>
-                <line x1="17" y1="7" x2="17" y2="10" stroke="#60A5FA" strokeWidth="1.4" strokeLinecap="round"/>
-                <circle cx="3" cy="12" r="2" fill="#FCD34D"/>
-                <path d="M0.5 17 Q3 14.5 5.5 17" stroke="#FCD34D" strokeWidth="1.4" strokeLinecap="round"/>
-                <circle cx="17" cy="12" r="2" fill="#FCD34D"/>
-                <path d="M14.5 17 Q17 14.5 19.5 17" stroke="#FCD34D" strokeWidth="1.4" strokeLinecap="round"/>
-                <line x1="7" y1="16" x2="13" y2="16" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round"/>
+                <line x1="10" y1="3" x2="10" y2="16" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="3" y1="7" x2="17" y2="7" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" />
+                <line x1="3" y1="7" x2="3" y2="10" stroke="#60A5FA" strokeWidth="1.4" strokeLinecap="round" />
+                <line x1="17" y1="7" x2="17" y2="10" stroke="#60A5FA" strokeWidth="1.4" strokeLinecap="round" />
+                <circle cx="3" cy="12" r="2" fill="#FCD34D" />
+                <path d="M0.5 17 Q3 14.5 5.5 17" stroke="#FCD34D" strokeWidth="1.4" strokeLinecap="round" />
+                <circle cx="17" cy="12" r="2" fill="#FCD34D" />
+                <path d="M14.5 17 Q17 14.5 19.5 17" stroke="#FCD34D" strokeWidth="1.4" strokeLinecap="round" />
+                <line x1="7" y1="16" x2="13" y2="16" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
             </div>
             <span className="font-bold text-xl text-brand-primary">Fair<span className="text-blue-500">Hire</span></span>
@@ -142,11 +142,10 @@ export default function RegisterPage() {
                 {(["CANDIDAT", "RECRUTEUR"] as const).map((r) => (
                   <button
                     key={r} type="button" onClick={() => upd("role", r)}
-                    className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 ${
-                      form.role === r
-                        ? "bg-brand-primary text-white border-brand-primary shadow-md"
-                        : "bg-white text-ink-secondary border-surface-200 hover:border-brand-accent"
-                    }`}
+                    className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 ${form.role === r
+                      ? "bg-brand-primary text-white border-brand-primary shadow-md"
+                      : "bg-white text-ink-secondary border-surface-200 hover:border-brand-accent"
+                      }`}
                   >
                     {r === "CANDIDAT" ? "👤 Candidat" : "🏢 Recruteur"}
                   </button>
@@ -186,10 +185,68 @@ export default function RegisterPage() {
                 <motion.div
                   initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}
+                  className="space-y-3"
                 >
-                  <Field id="reg-dept" label="Département" placeholder="ex: Ressources Humaines"
-                    value={form.departement} onChange={(v) => upd("departement", v)}
-                    icon={<Building2 className="w-4 h-4" />} />
+                  {/* Select département */}
+                  <div>
+                    <label htmlFor="reg-dept" className="block text-sm font-medium text-ink mb-1.5">
+                      Département
+                    </label>
+                    <div className="relative flex items-center rounded-xl border border-surface-200 bg-white shadow-sm transition-all duration-200 focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
+                      <div className="pl-3.5 text-ink-muted">
+                        <Building2 className="w-4 h-4" />
+                      </div>
+                      <select
+                        id="reg-dept"
+                        value={deptAutre ? "__autre__" : form.departement}
+                        onChange={(e) => {
+                          if (e.target.value === "__autre__") {
+                            setDeptAutre(true);
+                            upd("departement", "");
+                          } else {
+                            setDeptAutre(false);
+                            upd("departement", e.target.value);
+                          }
+                        }}
+                        className="w-full bg-transparent px-3 py-2.5 text-sm text-ink focus:outline-none appearance-none cursor-pointer"
+                      >
+                        <option value="">Sélectionner un département</option>
+                        <option value="Ingénierie / Technique">Ingénierie / Technique</option>
+                        <option value="Data / IA">Data / IA</option>
+                        <option value="Produit / Gestion de projet">Produit / Gestion de projet</option>
+                        <option value="Ventes / Développement commercial">Ventes / Développement commercial</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Ressources humaines">Ressources humaines</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Opérations / Support">Opérations / Support</option>
+                        <option value="__autre__">Autre…</option>
+                      </select>
+                      <div className="pr-3.5 pointer-events-none text-ink-muted">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Champ texte libre si "Autre" sélectionné */}
+                  <AnimatePresence>
+                    {deptAutre && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.15 }}
+                      >
+                        <Field
+                          id="reg-dept-autre"
+                          label="Préciser le département"
+                          placeholder="ex: Legal, Communication…"
+                          value={form.departement}
+                          onChange={(v) => upd("departement", v)}
+                          icon={<Building2 className="w-4 h-4" />}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               )}
             </AnimatePresence>

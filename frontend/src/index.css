@@ -346,3 +346,14 @@
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
     opacity 0.2s ease;
 }
+
+/* ── Select color-scheme fix (dark mode) ── */
+/* Ensures native dropdown option text is always readable */
+.dark select {
+  color-scheme: dark;
+}
+
+/* ── Select color-scheme fix (light mode) ── */
+:root select {
+  color-scheme: light;
+}
