@@ -5,8 +5,11 @@ interface Props {
   parseStatut: ParseStatut;
   cvNomFichier: string;
   candidatureId: string;          // pour construire l'URL de téléchargement
+  /** @deprecated — le nom est désormais affiché dans l'en-tête du panel, pas dans la carte */
   candidatNom?: string;
+  /** @deprecated — le nom est désormais affiché dans l'en-tête du panel, pas dans la carte */
   candidatPrenom?: string;
+  /** Fallback si cvData.email n'est pas disponible */
   candidatEmail?: string;
 }
 
@@ -14,7 +17,7 @@ const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000/api/v1";
 
 export default function CVProfileCard({
   cvData, parseStatut, cvNomFichier,
-  candidatureId, candidatNom, candidatPrenom, candidatEmail,
+  candidatureId, candidatEmail,
 }: Props) {
 
   const downloadUrl = `${API_BASE}/cvs/download/${candidatureId}`;
@@ -90,28 +93,16 @@ export default function CVProfileCard({
     );
   }
 
-  // Nom — priorité parser, fallback compte
-  const displayName = cvData.full_name
-    ?? (candidatPrenom || candidatNom
-      ? `${candidatPrenom ?? ""} ${candidatNom ?? ""}`.trim()
-      : null);
-
   // Email — priorité parser, fallback compte
   const displayEmail = cvData.email ?? candidatEmail;
 
   // ── Fiche complète ────────────────────────────────────────────
+  //
+  // NB : le nom du candidat n'est plus affiché ici — il figure désormais
+  // uniquement dans l'en-tête du panel/page (au-dessus de cette carte),
+  // ce qui évite la redondance visuelle.
   return (
     <div className="space-y-5">
-
-      {/* Nom & prénom */}
-      {displayName && (
-        <div>
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">
-            Candidat
-          </p>
-          <p className="text-lg font-bold text-white">{displayName}</p>
-        </div>
-      )}
 
       {/* Contact */}
       {(displayEmail || cvData.phone || cvData.linkedin || cvData.github) && (

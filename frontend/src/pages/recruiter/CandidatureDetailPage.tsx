@@ -15,17 +15,17 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 
 /* ── Constants ── */
 const STATUT_CAND: Record<StatutCandidature, { label: string; cls: string; icon: React.ReactNode }> = {
-  SOUMISE:         { label: "Soumise",  cls: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30",         icon: <Clock className="w-3.5 h-3.5" /> },
-  EN_COURS_EXAMEN: { label: "En cours", cls: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30",    icon: <Eye className="w-3.5 h-3.5" /> },
-  ACCEPTEE:        { label: "Acceptée", cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-  REFUSEE:         { label: "Refusée",  cls: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30",            icon: <XCircle className="w-3.5 h-3.5" /> },
+  SOUMISE: { label: "Soumise", cls: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30", icon: <Clock className="w-3.5 h-3.5" /> },
+  EN_COURS_EXAMEN: { label: "En cours", cls: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30", icon: <Eye className="w-3.5 h-3.5" /> },
+  ACCEPTEE: { label: "Acceptée", cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  REFUSEE: { label: "Refusée", cls: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30", icon: <XCircle className="w-3.5 h-3.5" /> },
 };
 
 const NIVEAU_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
   EXCELLENT: { label: "Excellent", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/25" },
-  BON:       { label: "Bon",       color: "text-blue-600 dark:text-blue-400",       bg: "bg-blue-500/10",    border: "border-blue-500/25"    },
-  PARTIEL:   { label: "Partiel",   color: "text-amber-600 dark:text-amber-400",     bg: "bg-amber-500/10",  border: "border-amber-500/25"   },
-  FAIBLE:    { label: "Faible",    color: "text-red-600 dark:text-red-400",         bg: "bg-red-500/10",    border: "border-red-500/25"     },
+  BON: { label: "Bon", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/25" },
+  PARTIEL: { label: "Partiel", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/25" },
+  FAIBLE: { label: "Faible", color: "text-red-600 dark:text-red-400", bg: "bg-red-500/10", border: "border-red-500/25" },
 };
 
 const isPending = (c: Candidature) =>
@@ -34,7 +34,7 @@ const isPending = (c: Candidature) =>
 type DetailTab = "cv" | "match";
 
 export default function CandidatureDetailPage() {
-  const { candidatureId } = useParams<{ candidatureId: string }>();
+  const { id: candidatureId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [cand, setCand] = useState<Candidature | null>(null);
@@ -105,8 +105,8 @@ export default function CandidatureDetailPage() {
   const handleAccept = async () => { await handleStatut("ACCEPTEE"); };
   const handleReject = async () => { await handleStatut("REFUSEE"); };
 
-  const backUrl = cand?.offre_titre
-    ? `/recruiter/dashboard?tab=candidatures`
+  const backUrl = cand?.offre_id
+    ? `/recruiter/dashboard?tab=candidatures&offreId=${cand.offre_id}`
     : `/recruiter/dashboard?tab=candidatures`;
 
   /* ── Loading state ── */
@@ -150,15 +150,15 @@ export default function CandidatureDetailPage() {
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             Candidatures
           </Link>
-          {cand?.offre_titre && (
+          {cand?.offre_titre && cand?.offre_id && (
             <>
               <span className="text-gray-400 dark:text-slate-600">/</span>
-              <button
-                onClick={() => navigate(`/recruiter/offres/${cand.offre_id}`)}
+              <Link
+                to={`/recruiter/dashboard?tab=candidatures&offreId=${cand.offre_id}`}
                 className="text-sm text-gray-500 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 truncate max-w-[160px] transition-colors"
               >
                 {cand.offre_titre}
-              </button>
+              </Link>
             </>
           )}
           <span className="text-gray-400 dark:text-slate-600">/</span>
@@ -264,8 +264,8 @@ export default function CandidatureDetailPage() {
               <button
                 onClick={() => setActiveTab("cv")}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${activeTab === "cv"
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
                   }`}
               >
                 <Download className="w-4 h-4" />
@@ -276,8 +276,8 @@ export default function CandidatureDetailPage() {
                 onClick={() => setActiveTab("match")}
                 disabled={!matchResult && !matchLoading && cand.parse_statut !== "TERMINE"}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed ${activeTab === "match"
-                    ? "bg-amber-500 text-white shadow-md"
-                    : "text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                  ? "bg-amber-500 text-white shadow-md"
+                  : "text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
                   }`}
               >
                 {matchLoading ? (

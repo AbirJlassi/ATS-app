@@ -24,6 +24,7 @@ import {
     LogOut,
     Shield,
     BarChart3,
+    FlaskConical,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
@@ -109,9 +110,19 @@ function getNavItems(role: Role | null): NavItem[] {
                     icon: <Users className="w-[18px] h-[18px]" />,
                 },
                 {
+                    label: "Offres",
+                    href: "/admin/dashboard?tab=offres",
+                    icon: <Briefcase className="w-[18px] h-[18px]" />,
+                },
+                {
                     label: "Statistiques",
                     href: "/admin/dashboard?tab=stats",
                     icon: <BarChart3 className="w-[18px] h-[18px]" />,
+                },
+                {
+                    label: "Qualité IA",
+                    href: "/admin/dashboard?tab=benchmark",
+                    icon: <FlaskConical className="w-[18px] h-[18px]" />,
                 },
                 {
                     label: "Mon profil",

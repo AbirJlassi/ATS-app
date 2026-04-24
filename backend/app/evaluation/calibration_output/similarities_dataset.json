@@ -1,0 +1,478 @@
+[
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_01",
+    "offre_id": "offre_001",
+    "label": "No Fit",
+    "similarity": 0.216799
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_02",
+    "offre_id": "offre_001",
+    "label": "No Fit",
+    "similarity": 0.15753
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_03",
+    "offre_id": "offre_001",
+    "label": "No Fit",
+    "similarity": 0.300813
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_04",
+    "offre_id": "offre_001",
+    "label": "Potential Fit",
+    "similarity": 0.300841
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_05",
+    "offre_id": "offre_001",
+    "label": "Good Fit",
+    "similarity": 0.207935
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_06",
+    "offre_id": "offre_001",
+    "label": "Good Fit",
+    "similarity": 0.307233
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_07",
+    "offre_id": "offre_001",
+    "label": "Good Fit",
+    "similarity": 0.392361
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_08",
+    "offre_id": "offre_001",
+    "label": "No Fit",
+    "similarity": 0.220785
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_09",
+    "offre_id": "offre_001",
+    "label": "No Fit",
+    "similarity": 0.226402
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_001_cv_10",
+    "offre_id": "offre_001",
+    "label": "No Fit",
+    "similarity": 0.225879
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_01",
+    "offre_id": "offre_002",
+    "label": "No Fit",
+    "similarity": 0.204579
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_02",
+    "offre_id": "offre_002",
+    "label": "No Fit",
+    "similarity": 0.401688
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_03",
+    "offre_id": "offre_002",
+    "label": "No Fit",
+    "similarity": 0.485101
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_04",
+    "offre_id": "offre_002",
+    "label": "Potential Fit",
+    "similarity": 0.415903
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_05",
+    "offre_id": "offre_002",
+    "label": "Potential Fit",
+    "similarity": 0.335362
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_06",
+    "offre_id": "offre_002",
+    "label": "Potential Fit",
+    "similarity": 0.401009
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_07",
+    "offre_id": "offre_002",
+    "label": "Good Fit",
+    "similarity": 0.471123
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_08",
+    "offre_id": "offre_002",
+    "label": "Good Fit",
+    "similarity": 0.429366
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_09",
+    "offre_id": "offre_002",
+    "label": "Good Fit",
+    "similarity": 0.435588
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_002_cv_10",
+    "offre_id": "offre_002",
+    "label": "No Fit",
+    "similarity": 0.508353
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_003_cv_01",
+    "offre_id": "offre_003",
+    "label": "No Fit",
+    "similarity": 0.468297
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_003_cv_02",
+    "offre_id": "offre_003",
+    "label": "No Fit",
+    "similarity": 0.465405
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_003_cv_03",
+    "offre_id": "offre_003",
+    "label": "No Fit",
+    "similarity": 0.560614
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_003_cv_04",
+    "offre_id": "offre_003",
+    "label": "Potential Fit",
+    "similarity": 0.561118
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_003_cv_06",
+    "offre_id": "offre_003",
+    "label": "Potential Fit",
+    "similarity": 0.415407
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_003_cv_07",
+    "offre_id": "offre_003",
+    "label": "Good Fit",
+    "similarity": 0.561615
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_003_cv_08",
+    "offre_id": "offre_003",
+    "label": "Good Fit",
+    "similarity": 0.409997
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_003_cv_10",
+    "offre_id": "offre_003",
+    "label": "No Fit",
+    "similarity": 0.543677
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_01",
+    "offre_id": "offre_004",
+    "label": "No Fit",
+    "similarity": 0.136348
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_02",
+    "offre_id": "offre_004",
+    "label": "No Fit",
+    "similarity": 0.231899
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_03",
+    "offre_id": "offre_004",
+    "label": "No Fit",
+    "similarity": 0.278946
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_04",
+    "offre_id": "offre_004",
+    "label": "Potential Fit",
+    "similarity": 0.288094
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_05",
+    "offre_id": "offre_004",
+    "label": "Potential Fit",
+    "similarity": 0.266601
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_06",
+    "offre_id": "offre_004",
+    "label": "Potential Fit",
+    "similarity": 0.282347
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_07",
+    "offre_id": "offre_004",
+    "label": "Good Fit",
+    "similarity": 0.265621
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_08",
+    "offre_id": "offre_004",
+    "label": "Good Fit",
+    "similarity": 0.277548
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_09",
+    "offre_id": "offre_004",
+    "label": "Good Fit",
+    "similarity": 0.305204
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_004_cv_10",
+    "offre_id": "offre_004",
+    "label": "No Fit",
+    "similarity": 0.223336
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_01",
+    "offre_id": "offre_005",
+    "label": "No Fit",
+    "similarity": 0.384265
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_02",
+    "offre_id": "offre_005",
+    "label": "No Fit",
+    "similarity": 0.411951
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_03",
+    "offre_id": "offre_005",
+    "label": "No Fit",
+    "similarity": 0.336122
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_04",
+    "offre_id": "offre_005",
+    "label": "No Fit",
+    "similarity": 0.321462
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_05",
+    "offre_id": "offre_005",
+    "label": "No Fit",
+    "similarity": 0.470172
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_06",
+    "offre_id": "offre_005",
+    "label": "Potential Fit",
+    "similarity": 0.436098
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_07",
+    "offre_id": "offre_005",
+    "label": "Potential Fit",
+    "similarity": 0.385772
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_08",
+    "offre_id": "offre_005",
+    "label": "Potential Fit",
+    "similarity": 0.279665
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_09",
+    "offre_id": "offre_005",
+    "label": "Potential Fit",
+    "similarity": 0.26358
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_005_cv_10",
+    "offre_id": "offre_005",
+    "label": "Potential Fit",
+    "similarity": 0.313103
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_006_cv_01",
+    "offre_id": "offre_006",
+    "label": "Good Fit",
+    "similarity": 0.758389
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_006_cv_02",
+    "offre_id": "offre_006",
+    "label": "Potential Fit",
+    "similarity": 0.696033
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_006_cv_03",
+    "offre_id": "offre_006",
+    "label": "Potential Fit",
+    "similarity": 0.748979
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_006_cv_04",
+    "offre_id": "offre_006",
+    "label": "No Fit",
+    "similarity": 0.444559
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_006_cv_05",
+    "offre_id": "offre_006",
+    "label": "No Fit",
+    "similarity": 0.456364
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_007_cv_01",
+    "offre_id": "offre_007",
+    "label": "Good Fit",
+    "similarity": 0.705934
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_007_cv_02",
+    "offre_id": "offre_007",
+    "label": "Good Fit",
+    "similarity": 0.686043
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_007_cv_03",
+    "offre_id": "offre_007",
+    "label": "Potential Fit",
+    "similarity": 0.61492
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_007_cv_04",
+    "offre_id": "offre_007",
+    "label": "Potential Fit",
+    "similarity": 0.470136
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_007_cv_05",
+    "offre_id": "offre_007",
+    "label": "No Fit",
+    "similarity": 0.272516
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_008_cv_01",
+    "offre_id": "offre_008",
+    "label": "Good Fit",
+    "similarity": 0.799621
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_008_cv_02",
+    "offre_id": "offre_008",
+    "label": "Good Fit",
+    "similarity": 0.548092
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_008_cv_03",
+    "offre_id": "offre_008",
+    "label": "Potential Fit",
+    "similarity": 0.603048
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_008_cv_04",
+    "offre_id": "offre_008",
+    "label": "Potential Fit",
+    "similarity": 0.598751
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_008_cv_05",
+    "offre_id": "offre_008",
+    "label": "No Fit",
+    "similarity": 0.444491
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_009_cv_01",
+    "offre_id": "offre_009",
+    "label": "Good Fit",
+    "similarity": 0.807281
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_009_cv_02",
+    "offre_id": "offre_009",
+    "label": "Good Fit",
+    "similarity": 0.80753
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_009_cv_03",
+    "offre_id": "offre_009",
+    "label": "Potential Fit",
+    "similarity": 0.592924
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_009_cv_04",
+    "offre_id": "offre_009",
+    "label": "Potential Fit",
+    "similarity": 0.566038
+  },
+  {
+    "source": "dataset",
+    "cv_id": "offre_009_cv_05",
+    "offre_id": "offre_009",
+    "label": "No Fit",
+    "similarity": 0.387599
+  }
+]

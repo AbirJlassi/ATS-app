@@ -10,7 +10,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     ArrowLeft, ChevronRight, Clock, CheckCircle2, XCircle,
-    FileText, AlertCircle, Search, Zap, Briefcase, Calendar, Award,
+    FileText, AlertCircle, Search, Zap, Briefcase,
 } from "lucide-react";
 import candidatureService from "@/services/candidatureService";
 import matchingService from "@/services/matchingService";

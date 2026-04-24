@@ -1,0 +1,142 @@
+[
+  {
+    "source": "database",
+    "candidature_id": "17bc022b-ebd7-465d-baca-84e685b5dc82",
+    "offre_id": "52191aba-57e6-4013-98aa-d4e82c0e4c43",
+    "offre_titre": "Ingénieur IA",
+    "similarity": 0.614715
+  },
+  {
+    "source": "database",
+    "candidature_id": "0b84425c-cc28-4105-afee-1cc14ac80ca2",
+    "offre_id": "52191aba-57e6-4013-98aa-d4e82c0e4c43",
+    "offre_titre": "Ingénieur IA",
+    "similarity": 0.582476
+  },
+  {
+    "source": "database",
+    "candidature_id": "3f8ab072-a892-42b9-9c98-70c86ddd2be7",
+    "offre_id": "b989db6b-26bd-47a5-a547-e0a492b1bbb8",
+    "offre_titre": "Développeur Full Stack",
+    "similarity": 0.425091
+  },
+  {
+    "source": "database",
+    "candidature_id": "ca0e7d65-6639-4736-96c7-9ec445028a72",
+    "offre_id": "b989db6b-26bd-47a5-a547-e0a492b1bbb8",
+    "offre_titre": "Développeur Full Stack",
+    "similarity": 0.513275
+  },
+  {
+    "source": "database",
+    "candidature_id": "2af85514-120e-4ee6-adda-c8be475e90e2",
+    "offre_id": "52191aba-57e6-4013-98aa-d4e82c0e4c43",
+    "offre_titre": "Ingénieur IA",
+    "similarity": 0.320041
+  },
+  {
+    "source": "database",
+    "candidature_id": "9a81ebf3-fc8b-4618-a230-d0a2dee3f431",
+    "offre_id": "bb9b7741-bb96-4b0f-ae6b-a6b63458849f",
+    "offre_titre": "Talent Acquisition Specialist",
+    "similarity": 0.478998
+  },
+  {
+    "source": "database",
+    "candidature_id": "320e031c-70ad-4337-9b09-d4eaa524ebb4",
+    "offre_id": "bb9b7741-bb96-4b0f-ae6b-a6b63458849f",
+    "offre_titre": "Talent Acquisition Specialist",
+    "similarity": 0.557948
+  },
+  {
+    "source": "database",
+    "candidature_id": "fe562813-b2f2-4ffd-b032-e5cfdac5bbdf",
+    "offre_id": "52191aba-57e6-4013-98aa-d4e82c0e4c43",
+    "offre_titre": "Ingénieur IA",
+    "similarity": 0.366036
+  },
+  {
+    "source": "database",
+    "candidature_id": "be5b6966-b7fd-44ed-b6c2-e812b976476a",
+    "offre_id": "b989db6b-26bd-47a5-a547-e0a492b1bbb8",
+    "offre_titre": "Développeur Full Stack",
+    "similarity": 0.542794
+  },
+  {
+    "source": "database",
+    "candidature_id": "66abe624-068b-4f73-9099-fa1ae733b747",
+    "offre_id": "bb9b7741-bb96-4b0f-ae6b-a6b63458849f",
+    "offre_titre": "Talent Acquisition Specialist",
+    "similarity": 0.285333
+  },
+  {
+    "source": "database",
+    "candidature_id": "b5e69b05-b041-4395-87ba-652e3b451bb7",
+    "offre_id": "b989db6b-26bd-47a5-a547-e0a492b1bbb8",
+    "offre_titre": "Développeur Full Stack",
+    "similarity": 0.345767
+  },
+  {
+    "source": "database",
+    "candidature_id": "4851fd8b-4eb1-4b1f-bdd2-38387129bda1",
+    "offre_id": "b989db6b-26bd-47a5-a547-e0a492b1bbb8",
+    "offre_titre": "Développeur Full Stack",
+    "similarity": 0.521459
+  },
+  {
+    "source": "database",
+    "candidature_id": "e3e67363-f2b4-4d0a-aea6-c4e11430d8cc",
+    "offre_id": "bb9b7741-bb96-4b0f-ae6b-a6b63458849f",
+    "offre_titre": "Talent Acquisition Specialist",
+    "similarity": 0.535971
+  },
+  {
+    "source": "database",
+    "candidature_id": "37372936-36ec-46cd-abb0-7553dcc79d88",
+    "offre_id": "f6d7c068-4ebd-42a2-a473-e4c72be64296",
+    "offre_titre": "Digital Marketing Specialist (Junior / Mid-Level)",
+    "similarity": 0.445123
+  },
+  {
+    "source": "database",
+    "candidature_id": "6a26cc9a-bab6-4f12-8bbe-fe7db52dcfe1",
+    "offre_id": "52191aba-57e6-4013-98aa-d4e82c0e4c43",
+    "offre_titre": "Ingénieur IA",
+    "similarity": 0.813425
+  },
+  {
+    "source": "database",
+    "candidature_id": "ee22d49c-df7d-41de-bd50-9373bda61063",
+    "offre_id": "52191aba-57e6-4013-98aa-d4e82c0e4c43",
+    "offre_titre": "Ingénieur IA",
+    "similarity": 0.813425
+  },
+  {
+    "source": "database",
+    "candidature_id": "0a8a5066-86b1-4125-9ef8-d6e5a66bc359",
+    "offre_id": "bb9b7741-bb96-4b0f-ae6b-a6b63458849f",
+    "offre_titre": "Talent Acquisition Specialist",
+    "similarity": 0.589628
+  },
+  {
+    "source": "database",
+    "candidature_id": "2dbf3fc6-6e69-44ff-a4e4-a425ce15b10a",
+    "offre_id": "f6d7c068-4ebd-42a2-a473-e4c72be64296",
+    "offre_titre": "Digital Marketing Specialist (Junior / Mid-Level)",
+    "similarity": 0.433786
+  },
+  {
+    "source": "database",
+    "candidature_id": "98162df6-4420-4a6a-bed7-938cc1bf885e",
+    "offre_id": "bb9b7741-bb96-4b0f-ae6b-a6b63458849f",
+    "offre_titre": "Talent Acquisition Specialist",
+    "similarity": 0.589628
+  },
+  {
+    "source": "database",
+    "candidature_id": "87dec0d6-116c-414c-b353-07f31fc2dead",
+    "offre_id": "52191aba-57e6-4013-98aa-d4e82c0e4c43",
+    "offre_titre": "Ingénieur IA",
+    "similarity": 0.685279
+  }
+]

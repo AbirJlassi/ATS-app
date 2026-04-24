@@ -19,9 +19,12 @@ from typing import Optional
 
 logger = logging.getLogger("matching_service")
 
+import hashlib
+
+from pydantic import BaseModel, field_validator, ValidationError
 
 # ── Singleton embeddings model ─────────────────────────────────────────────
-# Chargé une seule fois pour éviter le cold start (~400 MB sur disque)
+# Chargé une seule fois pour évite le cold start (~400 MB sur disque)
 _embedder = None
 
 
@@ -391,15 +394,136 @@ class EmbeddingLayer:
 
 
 # ── Couche 3 — LLM Judge ──────────────────────────────────────────────────
+"""
+LLMJudge — version améliorée
+Couche 3 du moteur de matching :
+- Modèle : llama-3.3-70b-versatile (Groq)
+- Few-shots : 2 exemples (profil fort + profil faible)
+- Validation Pydantic du JSON de sortie
+- Cache DB via hash(cv_data + offre_contenu)
+"""
+
+
+
+
+# ── Schéma de validation de la sortie LLM ─────────────────────────────────
+class LLMExplanation(BaseModel):
+    points_forts:   str
+    points_faibles: str
+    recommandation: str
+
+    @field_validator("recommandation")
+    @classmethod
+    def check_recommandation(cls, v: str) -> str:
+        valides = [
+            "Entretien recommandé",
+            "À considérer avec réserve",
+            "Profil insuffisant",
+        ]
+        if not any(v.startswith(r) for r in valides):
+            raise ValueError(
+                f"Recommandation invalide : '{v}'. "
+                f"Attendu : {valides}"
+            )
+        return v
+
+    @field_validator("points_forts", "points_faibles")
+    @classmethod
+    def check_non_vide(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Le champ ne peut pas être vide.")
+        return v.strip()
+
+
+# ── Calcul du hash de cache ────────────────────────────────────────────────
+def _compute_cache_key(cv_data: dict, offre: dict) -> str:
+    """
+    Produit un hash SHA-256 stable sur le contenu réel du CV et de l'offre.
+
+    Pourquoi hasher le CONTENU et pas juste offre_id + candidature_id ?
+    ─────────────────────────────────────────────────────────────────────
+    • offre_id reste le même si le recruteur modifie les compétences requises
+      → l'ancien résultat en cache serait caduc mais on ne le saurait pas.
+    • candidature_id change si la candidature est supprimée/recréée, même si
+      le CV est identique → on ferait un appel LLM inutile.
+
+    Le hash porte sur les données qui influencent RÉELLEMENT la sortie du LLM :
+    - côté CV      : skills, experiences, education, summary
+    - côté offre   : titre, description, competences_requises, domaine
+
+    Stabilité : json.dumps avec sort_keys=True garantit le même hash
+    indépendamment de l'ordre des clés dans les dicts Python.
+    """
+    cv_fingerprint = {
+        "skills":      sorted(cv_data.get("skills", [])),
+        "summary":     (cv_data.get("summary") or "").strip(),
+        "experiences": cv_data.get("experiences", []),
+        "education":   cv_data.get("education", []),
+    }
+    offre_fingerprint = {
+        "titre":               (offre.get("titre") or "").strip(),
+        "description":         (offre.get("description") or "").strip(),
+        "competences_requises": sorted(offre.get("competences_requises") or []),
+        "domaine":             (offre.get("domaine") or "").strip(),
+    }
+    payload = json.dumps(
+        {"cv": cv_fingerprint, "offre": offre_fingerprint},
+        ensure_ascii=False,
+        sort_keys=True,
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+# ── Few-shots ──────────────────────────────────────────────────────────────
+# Deux exemples injectés dans le prompt pour ancrer le format et le ton.
+# Règle : un exemple fort (score ≥ 80), un exemple faible (score ≤ 40).
+# Ces exemples sont fictifs mais réalistes — ils montrent au modèle
+# la granularité attendue et empêchent les réponses génériques.
+_FEW_SHOTS = """
+=== EXEMPLE 1 — Profil fort (score 87/100, niveau EXCELLENT) ===
+POSTE : Ingénieur Backend Senior (Informatique)
+PROFIL :
+- Résumé : Ingénieur avec 7 ans d'expérience en Python et architecture microservices.
+- Expériences : Lead Dev chez Dataiku (2020-Présent), Ingénieur Backend chez Criteo (2017-2020)
+- Formation : Master Informatique — Télécom Paris (2017)
+- Compétences correspondantes : Python, FastAPI, PostgreSQL, Docker, Kubernetes
+- Compétences manquantes : Kafka
+- Expérience requise : 5 ans (candidat : 7 ans)
+
+Réponse attendue :
+{
+  "points_forts": "Profil senior très solide avec 7 ans d'expérience directement pertinente en Python et microservices. Passage en leadership technique chez Dataiku confirme la capacité à monter en responsabilité.",
+  "points_faibles": "Absence de Kafka peut nécessiter une courte montée en compétence, mais le background distributed systems compense largement.",
+  "recommandation": "Entretien recommandé — profil au-dessus du seuil sur presque tous les critères."
+}
+
+=== EXEMPLE 2 — Profil faible (score 28/100, niveau FAIBLE) ===
+POSTE : Développeur Full-Stack React/Node.js (Informatique)
+PROFIL :
+- Résumé : Développeur junior avec 1 an d'expérience en PHP et WordPress.
+- Expériences : Développeur Web chez Agence XY (2023-Présent)
+- Formation : BTS SIO — Lycée Technique Lyon (2022)
+- Compétences correspondantes : HTML, CSS
+- Compétences manquantes : React, Node.js, TypeScript, REST API, Git
+- Expérience requise : 3 ans (candidat : 1 an)
+
+Réponse attendue :
+{
+  "points_forts": "Maîtrise des bases front-end (HTML/CSS) et première expérience professionnelle en agence.",
+  "points_faibles": "Écart important sur les technologies cœur du poste (React, Node.js, TypeScript absents) et expérience insuffisante de 2 ans par rapport au minimum requis.",
+  "recommandation": "Profil insuffisant pour ce poste — à reconsidérer dans 18-24 mois après montée en compétences."
+}
+"""
+
+
+# ── LLM Judge ─────────────────────────────────────────────────────────────
 class LLMJudge:
     """
     Génère une explication en langage naturel du score de matching.
-
-    Reçoit les scores et les données brutes → produit :
-    - points_forts    : ce que le candidat apporte
-    - points_faibles  : ce qui manque
-    - recommandation  : action suggérée au recruteur
+    Cache les résultats en DB pour éviter les appels LLM redondants.
     """
+
+    MODEL = "llama-3.3-70b-versatile"
 
     def explain(
         self,
@@ -412,90 +536,153 @@ class LLMJudge:
         offre_titre:       str,
         offre_domaine:     str,
         cv_summary:        Optional[str],
-        cv_experiences:    list[dict],   # ← nouveau
-        cv_education:      list[dict],   # ← nouveau
+        cv_experiences:    list[dict],
+        cv_education:      list[dict],
+        # ── nouveaux paramètres pour le cache ──
+        cv_data:           Optional[dict] = None,
+        offre:             Optional[dict] = None,
+        db=None,                                    # Session SQLAlchemy
     ) -> dict[str, str]:
-        """
-        Retourne {"points_forts": ..., "points_faibles": ..., "recommandation": ...}
-        Retourne des valeurs par défaut si Groq n'est pas disponible.
-        """
 
-        # Formater les expériences
+        # ── 1. Tentative de lecture cache ───────────────────────
+        cache_key: Optional[str] = None
+        if cv_data and offre and db:
+            cache_key = _compute_cache_key(cv_data, offre)
+            cached = _read_cache(db, cache_key)
+            if cached:
+                logger.info("LLM Judge : résultat en cache (key=%s…)", cache_key[:12])
+                return cached
+
+        # ── 2. Construction du prompt ───────────────────────────
         exp_lines = []
         for exp in cv_experiences[:5]:
             title   = exp.get("title", "")
             company = exp.get("company", "")
             period  = exp.get("period", "")
             exp_lines.append(f"  • {title} chez {company} ({period})".strip(" chez ()"))
-        exp_str = "\n".join(exp_lines) if exp_lines else "  • Non disponible"
+        exp_str = "\n".join(exp_lines) or "  • Non disponible"
 
-        # Formater la formation
         edu_lines = []
         for edu in cv_education[:3]:
-            degree  = edu.get("degree", "")
-            inst    = edu.get("institution", "")
-            year    = edu.get("year", "")
+            degree = edu.get("degree", "")
+            inst   = edu.get("institution", "")
+            year   = edu.get("year", "")
             edu_lines.append(f"  • {degree} — {inst} ({year})".strip(" — ()"))
-        edu_str = "\n".join(edu_lines) if edu_lines else "  • Non disponible"
+        edu_str = "\n".join(edu_lines) or "  • Non disponible"
 
+        prompt = f"""Tu es un expert RH senior. Tu évalues des candidats pour des postes précis.
+Voici deux exemples de ce qui est attendu :
 
+{_FEW_SHOTS}
+
+=== MAINTENANT, ÉVALUE CE CANDIDAT ===
+POSTE : {offre_titre} ({offre_domaine})
+SCORE GLOBAL : {score_total}/100 ({niveau})
+
+PROFIL CANDIDAT :
+- Résumé         : {cv_summary or 'Non disponible'}
+- Expériences ({annees_cv} ans au total) :
+{exp_str}
+- Formation :
+{edu_str}
+- Compétences correspondantes : {', '.join(skills_matchees) if skills_matchees else 'aucune'}
+- Compétences manquantes      : {', '.join(skills_manquantes) if skills_manquantes else 'aucune'}
+- Expérience requise          : {annees_requises} ans
+
+Réponds UNIQUEMENT en JSON valide avec exactement ces 3 clés :
+{{
+  "points_forts":   "1-2 phrases sur les atouts du candidat pour CE poste",
+  "points_faibles": "1-2 phrases sur les lacunes (ou 'Aucun point faible majeur' si score > 80)",
+  "recommandation": "Commence OBLIGATOIREMENT par l'une de ces trois phrases exactes : 'Entretien recommandé', 'À considérer avec réserve', 'Profil insuffisant' — puis complète en une phrase."
+}}
+
+Sois factuel et base-toi uniquement sur les données fournies. Aucun texte hors du JSON."""
+
+        # ── 3. Appel Groq ────────────────────────────────────────
         try:
             from groq import Groq
             client = Groq(api_key=os.getenv("GROQ_API_KEY", ""))
         except Exception as e:
-            logger.warning("Groq indisponible pour l'explication : %s", e)
-            return self._fallback_explanation(
-                score_total, skills_matchees, skills_manquantes
-            )
-
-        prompt = f"""Tu es un expert RH. Génère une évaluation concise d'un candidat pour un poste.
-
-        POSTE : {offre_titre} ({offre_domaine})
-        SCORE GLOBAL : {score_total}/100 ({niveau})
-
-        PROFIL CANDIDAT :
-        - Résumé         : {cv_summary or 'Non disponible'}
-        - Expériences ({annees_cv} ans au total) :
-        {exp_str}
-        - Formation :
-        {edu_str}
-        - Compétences correspondantes : {', '.join(skills_matchees) if skills_matchees else 'aucune'}
-        - Compétences manquantes      : {', '.join(skills_manquantes) if skills_manquantes else 'aucune'}
-        - Expérience requise          : {annees_requises} ans
-
-        Réponds UNIQUEMENT en JSON valide avec exactement ces 3 clés :
-        {{
-        "points_forts":   "1-2 phrases sur les atouts du candidat pour CE poste",
-        "points_faibles": "1-2 phrases sur les lacunes pour CE poste (ou 'Aucun point faible majeur' si score > 80)",
-        "recommandation": "Une phrase d'action pour le recruteur : Entretien recommandé / À considérer avec réserve / Profil insuffisant"
-        }}
-
-        Sois factuel, précis, et base-toi uniquement sur les données fournies."""
+            logger.warning("Groq indisponible : %s", e)
+            return self._fallback_explanation(score_total, skills_matchees, skills_manquantes)
 
         try:
             raw = client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model=self.MODEL,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.1,
-                max_tokens=250,
+                max_tokens=400,                    # augmenté pour éviter la troncature
+                stop=["}"],                        # stoppe proprement après la fermeture JSON
             ).choices[0].message.content
 
+            # Groq avec stop="}] ne capture pas le "}" final — on le réinjecte
+            raw = raw.strip()
+            if not raw.endswith("}"):
+                raw += "}"
+
+            # Nettoyage des éventuels backticks markdown
             cleaned = re.sub(r"```(?:json)?", "", raw).replace("```", "").strip()
             start   = cleaned.find("{")
             end     = cleaned.rfind("}") + 1
-            result  = json.loads(cleaned[start:end])
-
-            return {
-                "points_forts":    result.get("points_forts",    ""),
-                "points_faibles":  result.get("points_faibles",  ""),
-                "recommandation":  result.get("recommandation",  ""),
-            }
+            parsed  = json.loads(cleaned[start:end])
 
         except Exception as e:
-            logger.error("Erreur LLM Judge : %s", e)
-            return self._fallback_explanation(
-                score_total, skills_matchees, skills_manquantes
+            logger.error("Erreur appel LLM : %s", e)
+            return self._fallback_explanation(score_total, skills_matchees, skills_manquantes)
+
+        # ── 4. Validation Pydantic ───────────────────────────────
+        try:
+            validated = LLMExplanation(**parsed)
+            result = {
+                "points_forts":   validated.points_forts,
+                "points_faibles": validated.points_faibles,
+                "recommandation": validated.recommandation,
+            }
+        except ValidationError as e:
+            logger.warning(
+                "Validation LLM échouée (%s) — tentative de correction automatique",
+                e.error_count()
             )
+            # Correction automatique : si la recommandation ne commence pas bien,
+            # on la force à partir du score plutôt que de tout rejeter
+            result = self._repair_explanation(parsed, score_total, skills_matchees, skills_manquantes)
+
+        # ── 5. Écriture cache ────────────────────────────────────
+        if cache_key and db:
+            _write_cache(db, cache_key, result)
+
+        logger.info("LLM Judge OK — modèle=%s cache_key=%s", self.MODEL, (cache_key or "n/a")[:12])
+        return result
+
+    # ── Helpers ───────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _repair_explanation(
+        raw: dict,
+        score: int,
+        matchees: list[str],
+        manquantes: list[str],
+    ) -> dict[str, str]:
+        """
+        Tente de récupérer un résultat partiel plutôt que de tomber en fallback total.
+        Corrige uniquement la recommandation si elle est mal formée.
+        """
+        reco_correcte = (
+            "Entretien recommandé" if score >= 70
+            else "À considérer avec réserve" if score >= 50
+            else "Profil insuffisant"
+        )
+        return {
+            "points_forts":   raw.get("points_forts", "").strip() or (
+                f"Maîtrise de {', '.join(matchees[:3])}." if matchees
+                else "Profil à évaluer manuellement."
+            ),
+            "points_faibles": raw.get("points_faibles", "").strip() or (
+                f"Compétences manquantes : {', '.join(manquantes[:3])}." if manquantes
+                else "Aucun point faible majeur détecté."
+            ),
+            "recommandation": reco_correcte,
+        }
 
     @staticmethod
     def _fallback_explanation(
@@ -503,7 +690,7 @@ class LLMJudge:
         matchees: list[str],
         manquantes: list[str],
     ) -> dict[str, str]:
-        """Explication générique si le LLM est indisponible."""
+        """Explication générique si le LLM est totalement indisponible."""
         forts = (
             f"Maîtrise de {', '.join(matchees[:3])}."
             if matchees else "Profil à évaluer manuellement."
@@ -518,6 +705,39 @@ class LLMJudge:
             else "Profil insuffisant pour ce poste."
         )
         return {"points_forts": forts, "points_faibles": faibles, "recommandation": reco}
+
+
+# ── Fonctions de cache DB ──────────────────────────────────────────────────
+# On réutilise ta session SQLAlchemy existante.
+# Le modèle LLMCache est à ajouter dans app/models/ (voir ci-dessous).
+
+def _read_cache(db, cache_key: str) -> Optional[dict]:
+    try:
+        from app.models.llm_cache import LLMCache
+        row = db.query(LLMCache).filter(LLMCache.cache_key == cache_key).first()
+        if row:
+            return json.loads(row.result_json)
+    except Exception as e:
+        logger.warning("Lecture cache LLM échouée : %s", e)
+    return None
+
+
+def _write_cache(db, cache_key: str, result: dict) -> None:
+    try:
+        from app.models.llm_cache import LLMCache
+        existing = db.query(LLMCache).filter(LLMCache.cache_key == cache_key).first()
+        if not existing:
+            db.add(LLMCache(
+                cache_key=cache_key,
+                result_json=json.dumps(result, ensure_ascii=False),
+            ))
+            db.commit()
+    except Exception as e:
+        logger.warning("Écriture cache LLM échouée : %s", e)
+        db.rollback()
+
+
+
 
 
 # ── Orchestrateur principal ────────────────────────────────────────────────
@@ -535,7 +755,7 @@ class MatchingEngine:
         self.embedder = EmbeddingLayer()
         self.judge    = LLMJudge()
 
-    def match(self, cv_data: dict, offre: dict) -> MatchScore:
+    def match(self, cv_data: dict, offre: dict, db=None) -> MatchScore:
         """
         Lance le matching complet.
 
@@ -578,10 +798,13 @@ class MatchingEngine:
         # ── Couche 3 : LLM Judge ────────────────────────────────
         logger.info("Matching couche 3 — LLM Judge (explication)")
         explanation = self.judge.explain(
-        score_total, niveau, matchees, manquantes,
-        annees_cv, annees_min, offre_titre, offre_domaine, cv_summary,
-        cv_experiences, cv_education,   # ← ajout
-    )
+            score_total, niveau, matchees, manquantes,
+            annees_cv, annees_min, offre_titre, offre_domaine,
+            cv_summary, cv_experiences, cv_education,
+            cv_data=cv_data,
+            offre=offre,
+            db=db,
+        )
 
         logger.info(
             "Matching terminé — score=%d (%s) | skills=%d/%d | exp=%.1f/%d ans | sem=%.1f",

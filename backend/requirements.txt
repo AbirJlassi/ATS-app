@@ -31,3 +31,4 @@ pillow==10.3.0
 pytesseract==0.3.10
 langdetect==1.0.9
 python-dateutil==2.9.0
+datasets==4.8.4

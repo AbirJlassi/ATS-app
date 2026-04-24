@@ -1,0 +1,261 @@
+[
+  {
+    "id": "cv_001_junior_dev_fr",
+    "text": "Lucas Martin\nDéveloppeur Web Junior\n\nLyon, France\nlucas.martin.dev@gmail.com\n07 82 41 05 63\nLinkedIn: linkedin.com/in/lucas-martin-dev\nGitHub: github.com/lucasmartin\n\nÀ PROPOS\nJeune développeur passionné par le web, à la recherche d'un premier poste en CDI après un stage de 6 mois en équipe Agile. J'aime construire des interfaces propres et du code maintenable.\n\nEXPÉRIENCE\n\nDéveloppeur Front-end (stage) | Qwanta | Lyon\nMars 2025 – Août 2025\n- Refonte de l'interface client en React + TypeScript\n- Intégration de composants Tailwind dans une librairie interne\n- Participation aux code reviews et rituels agiles\n\nDéveloppeur Web (alternance) | Inéa Conseil | Villeurbanne\nSeptembre 2023 – Février 2025\n- Maintenance d'une application PHP/Symfony\n- Migration progressive de jQuery vers Vue.js\n- Rédaction de tests unitaires PHPUnit\n\nFORMATION\n\nMaster Informatique - Développement Web | Université Lyon 1\n2023 - 2025\n\nLicence Informatique | Université Lyon 1\n2020 - 2023\n\nCOMPÉTENCES TECHNIQUES\nLangages : JavaScript, TypeScript, PHP, Python\nFrameworks : React, Vue.js, Symfony, Tailwind CSS\nOutils : Git, Docker, Figma, VS Code\nBases de données : PostgreSQL, MongoDB\n\nLANGUES\nFrançais - Natif\nAnglais - B2 (TOEIC 850)\nEspagnol - A2",
+    "expected": {
+      "full_name": "Lucas Martin",
+      "email": "lucas.martin.dev@gmail.com",
+      "phone": "07 82 41 05 63",
+      "location": "Lyon, France",
+      "linkedin": "linkedin.com/in/lucas-martin-dev",
+      "github": "github.com/lucasmartin",
+      "skills": ["javascript", "typescript", "php", "python", "react", "vue.js", "symfony", "tailwind css", "git", "docker", "figma", "postgresql", "mongodb"],
+      "experiences": [
+        {"title": "Développeur Front-end", "company": "Qwanta"},
+        {"title": "Développeur Web", "company": "Inéa Conseil"}
+      ],
+      "education": [
+        {"degree": "Master Informatique - Développement Web", "institution": "Université Lyon 1"},
+        {"degree": "Licence Informatique", "institution": "Université Lyon 1"}
+      ],
+      "languages": [
+        {"language": "Français", "level": "Natif"},
+        {"language": "Anglais", "level": "B2"},
+        {"language": "Espagnol", "level": "A2"}
+      ]
+    }
+  },
+  {
+    "id": "cv_002_senior_data_scientist_en",
+    "text": "Sarah Chen, PhD\nSenior Data Scientist | NLP & LLM Systems\n\nBerlin, Germany · +49 151 2847 6392\nsarah.chen.ai@protonmail.com\nhttps://www.linkedin.com/in/sarahchen-ds/ · https://github.com/schen-ml\n\nSUMMARY\n8+ years building production ML systems. Specialized in information retrieval, embedding models, and RAG pipelines. Previously scaled a semantic search product from prototype to 40M queries/month.\n\nEXPERIENCE\n\nSenior Data Scientist, Search & Relevance — Klarna · Berlin\nOct 2022 - Present\n· Led the design of a hybrid BM25 + dense retrieval system (+14% nDCG vs previous baseline)\n· Fine-tuned multilingual sentence encoders on 2M labeled query-product pairs\n· Mentored 3 junior DS; owns the weekly relevance review\n\nML Engineer — Delivery Hero · Berlin\nJan 2020 - Sep 2022\n· Built the restaurant recommendation model (XGBoost + behavioral features), +6% CTR\n· Migrated training pipelines to Kubeflow, cutting iteration time from days to hours\n\nResearch Assistant — Max Planck Institute for Informatics · Saarbrücken\nSep 2016 - Dec 2019\n· PhD thesis on cross-lingual embedding alignment\n· 4 publications at EMNLP, ACL, NAACL\n\nEDUCATION\n\nPhD in Computer Science — Saarland University · 2016-2020\nMSc Computational Linguistics — University of Edinburgh · 2014-2016\nBSc Computer Science — Fudan University · 2010-2014\n\nSKILLS\nPython, PyTorch, HuggingFace Transformers, scikit-learn, XGBoost\nElasticsearch, FAISS, Weaviate, PostgreSQL\nAWS (SageMaker, EC2, S3), Docker, Kubernetes, Kubeflow\nSQL, Spark, Airflow\n\nSELECTED PUBLICATIONS\nChen, S. et al. (2019) \"Zero-Shot Cross-Lingual Retrieval via Anchor Languages.\" EMNLP.\nChen, S. & Müller, K. (2018) \"Contrastive Alignment of Multilingual Word Embeddings.\" ACL.\n\nLANGUAGES\nEnglish (native), Mandarin (native), German (C1), French (B1)",
+    "expected": {
+      "full_name": "Sarah Chen",
+      "email": "sarah.chen.ai@protonmail.com",
+      "phone": "+49 151 2847 6392",
+      "location": "Berlin, Germany",
+      "linkedin": "https://www.linkedin.com/in/sarahchen-ds/",
+      "github": "https://github.com/schen-ml",
+      "skills": ["python", "pytorch", "huggingface transformers", "scikit-learn", "xgboost", "elasticsearch", "faiss", "weaviate", "postgresql", "aws", "sagemaker", "docker", "kubernetes", "kubeflow", "sql", "spark", "airflow"],
+      "experiences": [
+        {"title": "Senior Data Scientist, Search & Relevance", "company": "Klarna"},
+        {"title": "ML Engineer", "company": "Delivery Hero"},
+        {"title": "Research Assistant", "company": "Max Planck Institute for Informatics"}
+      ],
+      "education": [
+        {"degree": "PhD in Computer Science", "institution": "Saarland University"},
+        {"degree": "MSc Computational Linguistics", "institution": "University of Edinburgh"},
+        {"degree": "BSc Computer Science", "institution": "Fudan University"}
+      ],
+      "languages": [
+        {"language": "English", "level": "Native"},
+        {"language": "Mandarin", "level": "Native"},
+        {"language": "German", "level": "C1"},
+        {"language": "French", "level": "B1"}
+      ]
+    }
+  },
+  {
+    "id": "cv_003_fullstack_tunisia_bilingual",
+    "text": "Mohamed Ali Ben Youssef\nIngénieur Full-Stack | 4 ans d'expérience\n\nTunis, Tunisie\nmed.benyoussef@outlook.com | +216 24 117 803\nlinkedin.com/in/mbenyoussef/ | github.com/MedAliBY\n\nPROFIL\nIngénieur diplômé de l'ENSI, spécialisé en développement web et mobile. Expérience sur des produits SaaS à destination de PMEs françaises et tunisiennes. À l'aise en environnement bilingue FR/EN.\n\nEXPÉRIENCES PROFESSIONNELLES\n\nLead Developer — Vermeg (on-site + remote Paris) | Jan 2024 - Présent\n· Refonte du module de reporting réglementaire (Java Spring Boot + Angular)\n· Encadrement technique de 2 développeurs juniors\n· Mise en place de CI/CD GitLab avec tests automatisés\n\nSoftware Engineer — Expensya | Sept 2022 - Déc 2023\n· Développement de features sur l'app mobile React Native (iOS + Android)\n· Optimisation des temps de chargement (-35% sur le dashboard)\n\nFreelance Web Developer | 2021 - 2022\n· Missions ponctuelles pour 5 clients (WordPress, Laravel, intégration Stripe)\n\nFORMATION\nDiplôme d'Ingénieur en Informatique — ENSI (École Nationale des Sciences de l'Informatique), La Manouba\n2018 - 2021\n\nClasses Préparatoires MP — IPEIT, Tunis\n2016 - 2018\n\nCOMPÉTENCES\nBackend: Java, Spring Boot, Node.js, Laravel, PHP\nFrontend: Angular, React, React Native, TypeScript\nDevOps: Docker, GitLab CI, Nginx, AWS (EC2, RDS)\nBases de données: MySQL, PostgreSQL, Redis\n\nCERTIFICATIONS\nAWS Certified Developer - Associate (2024)\nOracle Certified Java SE 11 Programmer (2022)\n\nLANGUES\nArabe - Langue maternelle\nFrançais - Courant (C1)\nAnglais - Courant (C1)",
+    "expected": {
+      "full_name": "Mohamed Ali Ben Youssef",
+      "email": "med.benyoussef@outlook.com",
+      "phone": "+216 24 117 803",
+      "location": "Tunis, Tunisie",
+      "linkedin": "linkedin.com/in/mbenyoussef/",
+      "github": "github.com/MedAliBY",
+      "skills": ["java", "spring boot", "node.js", "laravel", "php", "angular", "react", "react native", "typescript", "docker", "gitlab ci", "nginx", "aws", "mysql", "postgresql", "redis"],
+      "experiences": [
+        {"title": "Lead Developer", "company": "Vermeg"},
+        {"title": "Software Engineer", "company": "Expensya"},
+        {"title": "Freelance Web Developer", "company": ""}
+      ],
+      "education": [
+        {"degree": "Diplôme d'Ingénieur en Informatique", "institution": "ENSI"},
+        {"degree": "Classes Préparatoires MP", "institution": "IPEIT"}
+      ],
+      "certifications": ["AWS Certified Developer - Associate", "Oracle Certified Java SE 11 Programmer"],
+      "languages": [
+        {"language": "Arabe", "level": "Langue maternelle"},
+        {"language": "Français", "level": "C1"},
+        {"language": "Anglais", "level": "C1"}
+      ]
+    }
+  },
+  {
+    "id": "cv_004_ux_designer_fr_hyphenated",
+    "text": "Camille Dupont-Leroy\nUX/UI Designer — 6 ans d'expérience produit\n\n06 74 32 98 15 · camille.dupontleroy@hey.com\nParis 11e · Portfolio: camille-design.fr\nLinkedIn: https://fr.linkedin.com/in/camilledupontleroy\n\n— À PROPOS —\nDesigneuse produit avec une formation en sciences cognitives. Je conçois des interfaces qui résolvent des problèmes mesurables, pas juste des écrans jolis. J'ai accompagné 3 produits de l'idée au million d'utilisateurs.\n\n— EXPÉRIENCE —\n\nLead Product Designer\nDoctolib · Paris · Nov 2021 – Aujourd'hui\nJe pilote le design du parcours patient sur mobile (3M d'utilisateurs actifs mensuels). Gère une équipe de 4 designers.\n\nProduct Designer\nAlan · Paris · Juin 2019 – Oct 2021\nRefonte complète de l'espace adhérent. +22 points NPS sur 18 mois.\n\nUX Designer Junior\nBlaBlaCar · Paris · Sept 2017 – Mai 2019\nDesign system \"Nova\" (contributrice principale sur les composants de formulaire).\n\n— FORMATION —\n\nMaster Design d'Interaction — ENSCI-Les Ateliers · 2015-2017\nLicence Sciences Cognitives — Université Paris 8 · 2012-2015\n\n— OUTILS & MÉTHODES —\nFigma (expert), Framer, Principle\nDesign systems, prototypage, tests utilisateurs modérés et non-modérés\nAnalytics produit (Amplitude, Mixpanel)\nHTML/CSS (read & tweak)\n\nAnglais courant. Je lis l'italien.",
+    "expected": {
+      "full_name": "Camille Dupont-Leroy",
+      "email": "camille.dupontleroy@hey.com",
+      "phone": "06 74 32 98 15",
+      "location": "Paris",
+      "linkedin": "https://fr.linkedin.com/in/camilledupontleroy",
+      "github": null,
+      "skills": ["figma", "framer", "principle", "design systems", "prototypage", "tests utilisateurs", "amplitude", "mixpanel", "html", "css"],
+      "experiences": [
+        {"title": "Lead Product Designer", "company": "Doctolib"},
+        {"title": "Product Designer", "company": "Alan"},
+        {"title": "UX Designer Junior", "company": "BlaBlaCar"}
+      ],
+      "education": [
+        {"degree": "Master Design d'Interaction", "institution": "ENSCI-Les Ateliers"},
+        {"degree": "Licence Sciences Cognitives", "institution": "Université Paris 8"}
+      ]
+    }
+  },
+  {
+    "id": "cv_005_devops_particle_name_en",
+    "text": "Thomas van der Berg\nSenior DevOps Engineer\n\nAmsterdam, Netherlands\n+31 6 2047 8851\nt.vanderberg@fastmail.nl\ngithub.com/tvdb-ops\n\nPROFESSIONAL SUMMARY\n\nInfrastructure engineer with 10 years in production systems at scale. Comfortable at the intersection of networking, reliability, and developer experience.\n\nEXPERIENCE\n\nStaff DevOps Engineer, Platform Team\nBooking.com — Amsterdam\n2020 — Present\n• Designed the multi-region Kubernetes migration (45 clusters, 12k pods at peak)\n• Built internal developer platform reducing deployment lead time by 60%\n• On-call rotation lead for platform SRE team\n\nSenior SRE\nAdyen — Amsterdam\n2017 — 2020\n• Led incident response for payment infrastructure (uptime SLA 99.99%)\n• Owned Kafka cluster operations across 3 data centers\n\nSystems Engineer\nTransIP — Leiden\n2014 — 2017\n• Hosting infrastructure automation (Ansible, Puppet)\n• Internal tooling in Go\n\nEDUCATION\n\nBSc Computer Science — Leiden University — 2011-2014\n\nTECHNICAL SKILLS\n\nCloud: AWS, GCP, on-premise OpenStack\nOrchestration: Kubernetes, Docker, Nomad\nIaC: Terraform, Pulumi, Ansible\nObservability: Prometheus, Grafana, Loki, Datadog\nLanguages: Go, Python, Bash\nData: Kafka, PostgreSQL, Redis\nCI/CD: ArgoCD, GitHub Actions, Jenkins\n\nCERTIFICATIONS\nCertified Kubernetes Administrator (CKA) — 2021\nAWS Solutions Architect Professional — 2022\n\nLANGUAGES\nDutch (native) · English (fluent) · German (professional)",
+    "expected": {
+      "full_name": "Thomas van der Berg",
+      "email": "t.vanderberg@fastmail.nl",
+      "phone": "+31 6 2047 8851",
+      "location": "Amsterdam, Netherlands",
+      "github": "github.com/tvdb-ops",
+      "linkedin": null,
+      "skills": ["aws", "gcp", "openstack", "kubernetes", "docker", "nomad", "terraform", "pulumi", "ansible", "prometheus", "grafana", "loki", "datadog", "go", "python", "bash", "kafka", "postgresql", "redis", "argocd", "github actions", "jenkins"],
+      "experiences": [
+        {"title": "Staff DevOps Engineer, Platform Team", "company": "Booking.com"},
+        {"title": "Senior SRE", "company": "Adyen"},
+        {"title": "Systems Engineer", "company": "TransIP"}
+      ],
+      "education": [
+        {"degree": "BSc Computer Science", "institution": "Leiden University"}
+      ],
+      "certifications": ["Certified Kubernetes Administrator", "AWS Solutions Architect Professional"],
+      "languages": [
+        {"language": "Dutch", "level": "native"},
+        {"language": "English", "level": "fluent"},
+        {"language": "German", "level": "professional"}
+      ]
+    }
+  },
+  {
+    "id": "cv_006_consultant_freelance_gaps_fr",
+    "text": "Fatima El Mansouri\n\nConsultante indépendante — Transformation digitale\nMarseille · 07.61.04.29.88 · fatima.elmansouri.pro@gmail.com\nwww.linkedin.com/in/fatima-elmansouri-consulting\n\n-----\n\nProfil\n\nConsultante en transformation digitale avec 12 ans d'expérience auprès de grands groupes (retail, assurance, industrie). Alterne missions courtes (3-6 mois) et accompagnements longs. En freelance depuis 2021 après 8 ans chez Capgemini.\n\n-----\n\nMissions récentes (freelance — SIRET 812 445 902)\n\n[2025] Auchan Retail — Lille, hybride\nPilotage de la refonte du parcours client omnicanal (mission 4 mois)\n\n[2024] Groupe Rocher — Issy-les-Moulineaux\nAudit et recommandations sur la stack e-commerce (mission 2 mois)\n\n[2023-2024] AXA France — Paris\nAccompagnement de la direction data sur la gouvernance des données clients (10 mois)\n\n[2022] Michelin — Clermont-Ferrand, hybride\nConduite du changement sur le déploiement d'un ERP métier (5 mois)\n\n[2021] Leroy Merlin — Lille\nCadrage d'un projet de marketplace B2B (3 mois)\n\n-----\n\nParcours salarié\n\nCapgemini Invent — Paris · Manager Senior · 2013-2021\nProgression de consultante junior à manager senior. Secteurs couverts : banque, assurance, retail.\n\n-----\n\nFormation\n\nHEC Paris — MBA · 2011-2013\nIngénieur d'État — École Mohammadia d'Ingénieurs, Rabat · 2006-2011\n\n-----\n\nLangues\nArabe, français (natifs) · Anglais professionnel · Espagnol scolaire",
+    "expected": {
+      "full_name": "Fatima El Mansouri",
+      "email": "fatima.elmansouri.pro@gmail.com",
+      "phone": "07.61.04.29.88",
+      "location": "Marseille",
+      "linkedin": "www.linkedin.com/in/fatima-elmansouri-consulting",
+      "github": null,
+      "experiences": [
+        {"title": "Consultante indépendante", "company": "Auchan Retail"},
+        {"title": "Consultante indépendante", "company": "Groupe Rocher"},
+        {"title": "Consultante indépendante", "company": "AXA France"},
+        {"title": "Consultante indépendante", "company": "Michelin"},
+        {"title": "Consultante indépendante", "company": "Leroy Merlin"},
+        {"title": "Manager Senior", "company": "Capgemini Invent"}
+      ],
+      "education": [
+        {"degree": "MBA", "institution": "HEC Paris"},
+        {"degree": "Ingénieur d'État", "institution": "École Mohammadia d'Ingénieurs"}
+      ],
+      "languages": [
+        {"language": "Arabe", "level": "natif"},
+        {"language": "Français", "level": "natif"},
+        {"language": "Anglais", "level": "professionnel"},
+        {"language": "Espagnol", "level": "scolaire"}
+      ]
+    }
+  },
+  {
+    "id": "cv_007_career_changer_teacher_to_data_en",
+    "text": "Olivia Wright\nJunior Data Analyst · Career Changer\n\nManchester, UK | 07423 558 901 | olivia.wright.data@gmail.com\nLinkedIn: linkedin.com/in/olivia-wright-data | GitHub: github.com/oliviaw-data\n\nABOUT ME\n\nFormer secondary school maths teacher (7 years) now working as a data analyst. I bring strong analytical rigour and the ability to explain complex findings to non-technical audiences — a skill built through a decade of teaching teenagers.\n\nEXPERIENCE\n\nData Analyst\nThe Co-operative Group — Manchester\nMarch 2024 - Present\n- Build dashboards in Looker for the retail operations team\n- SQL queries across a data warehouse of 200+ tables\n- Monthly ad-hoc analysis for senior stakeholders\n\nMathematics Teacher\nSt Bede's College — Manchester\nSeptember 2016 - July 2023\n- Taught GCSE and A-level Mathematics\n- Head of Year 10 (2020-2023)\n- Designed curriculum materials used across the North-West Catholic school network\n\nEDUCATION\n\nData Science Bootcamp — General Assembly (12 weeks intensive) — 2023\nPGCE Secondary Mathematics — University of Manchester — 2015-2016\nBSc Mathematics (First Class Honours) — Durham University — 2012-2015\n\nSKILLS\n\n- SQL (strong), Python (pandas, matplotlib, seaborn)\n- Looker, Tableau, Excel (advanced)\n- Basic statistics, A/B testing fundamentals\n- Git, Jupyter\n\nPersonal projects on GitHub: analysis of UK school performance data, football expected goals model.",
+    "expected": {
+      "full_name": "Olivia Wright",
+      "email": "olivia.wright.data@gmail.com",
+      "phone": "07423 558 901",
+      "location": "Manchester, UK",
+      "linkedin": "linkedin.com/in/olivia-wright-data",
+      "github": "github.com/oliviaw-data",
+      "skills": ["sql", "python", "pandas", "matplotlib", "seaborn", "looker", "tableau", "excel", "statistics", "a/b testing", "git", "jupyter"],
+      "experiences": [
+        {"title": "Data Analyst", "company": "The Co-operative Group"},
+        {"title": "Mathematics Teacher", "company": "St Bede's College"}
+      ],
+      "education": [
+        {"degree": "Data Science Bootcamp", "institution": "General Assembly"},
+        {"degree": "PGCE Secondary Mathematics", "institution": "University of Manchester"},
+        {"degree": "BSc Mathematics", "institution": "Durham University"}
+      ]
+    }
+  },
+  {
+    "id": "cv_008_phd_researcher_en_formal",
+    "text": "Dr. James O'Connor, PhD\nPostdoctoral Researcher — Computational Biology\n\nDublin, Ireland\n+353 87 442 9901\nj.oconnor@tcd.ie (institutional) · jamesoc.research@gmail.com (personal)\nORCID: 0000-0003-4421-0817\n\n══════════════════════\n\nRESEARCH INTERESTS\nSingle-cell RNA-seq analysis · Graph neural networks for biological networks · Reproducible computational pipelines\n\n══════════════════════\n\nACADEMIC APPOINTMENTS\n\nPostdoctoral Researcher, School of Genetics and Microbiology\nTrinity College Dublin · 2023 - Present\nPI: Prof. Aisling Ryan. Funded by Science Foundation Ireland.\n\nPhD Candidate, Department of Biochemistry\nUniversity of Oxford · 2019 - 2023\nThesis: \"Graph-based integration of multi-omics data in colorectal cancer\" (passed with minor corrections)\nSupervisors: Prof. R. Holden, Dr. M. Okonkwo\n\n══════════════════════\n\nEDUCATION\n\nDPhil (PhD) Biochemistry — University of Oxford — 2019-2023\nMSc Bioinformatics (Distinction) — University of Edinburgh — 2018-2019\nBSc Genetics (1st Class Honours) — Trinity College Dublin — 2014-2018\n\n══════════════════════\n\nSELECTED PUBLICATIONS (5 of 11 total)\n\n1. O'Connor J. et al. \"GraphOmics: a framework for multi-omics integration using heterogeneous GNNs.\" Nature Methods, 2024.\n2. O'Connor J., Okonkwo M. \"Benchmarking single-cell batch correction methods on 14 datasets.\" Genome Biology, 2023.\n3. O'Connor J. et al. \"Rare cell subpopulations in colorectal tumors identified via scRNA-seq.\" Cell Reports, 2022.\n\n══════════════════════\n\nTECHNICAL SKILLS\n\nProgramming: Python (expert), R (fluent), Bash, some Julia\nML/Stats: PyTorch, PyTorch Geometric, scikit-learn, scanpy, Seurat\nPipelines: Nextflow, Snakemake, Docker, Singularity\nHPC: SLURM, experience on 3 academic clusters\nCollaboration: Git, LaTeX, Overleaf\n\nLANGUAGES: English (native), Irish (intermediate), French (conversational)",
+    "expected": {
+      "full_name": "James O'Connor",
+      "email": "j.oconnor@tcd.ie",
+      "phone": "+353 87 442 9901",
+      "location": "Dublin, Ireland",
+      "linkedin": null,
+      "github": null,
+      "skills": ["python", "r", "bash", "julia", "pytorch", "pytorch geometric", "scikit-learn", "scanpy", "seurat", "nextflow", "snakemake", "docker", "singularity", "slurm", "git", "latex"],
+      "experiences": [
+        {"title": "Postdoctoral Researcher", "company": "Trinity College Dublin"},
+        {"title": "PhD Candidate", "company": "University of Oxford"}
+      ],
+      "education": [
+        {"degree": "DPhil Biochemistry", "institution": "University of Oxford"},
+        {"degree": "MSc Bioinformatics", "institution": "University of Edinburgh"},
+        {"degree": "BSc Genetics", "institution": "Trinity College Dublin"}
+      ]
+    }
+  },
+  {
+    "id": "cv_009_hr_manager_non_tech_fr",
+    "text": "Emma Leroux\nResponsable Ressources Humaines\n\nBordeaux · 06 31 78 20 44\nemma.leroux@laposte.net\n\n→ PROFIL\n\nResponsable RH avec 9 ans d'expérience en environnement PME (50 à 300 salariés). Spécialiste du recrutement, des relations sociales et de l'accompagnement des transformations.\n\n→ EXPÉRIENCE PROFESSIONNELLE\n\nResponsable RH\nBiocoop Sud-Ouest · Bordeaux · 2021 - aujourd'hui\n· Responsable du service RH pour 180 collaborateurs sur 12 magasins\n· Gestion des IRP (CSE) et négociations annuelles obligatoires\n· Mise en place d'un plan de développement des compétences\n\nChargée de Recrutement Senior\nCabinet Michael Page · Bordeaux · 2017 - 2021\n· Recrutements cadres sur les fonctions finance et comptabilité\n· Portefeuille clients de 25 entreprises régionales\n\nAssistante RH\nCDISCOUNT · Bordeaux · 2015 - 2017\n· Support administratif RH · onboarding · gestion des contrats\n\n→ FORMATION\n\nMaster 2 Gestion des Ressources Humaines — IAE Bordeaux — 2013-2015\nLicence en Droit Social — Université de Bordeaux — 2010-2013\n\n→ COMPÉTENCES\n\nDroit du travail français · Gestion des conflits · Conduite du changement\nSIRH : Lucca, Payfit, SAP SuccessFactors\nLogiciels : Pack Office, Teams, LinkedIn Recruiter\n\n→ LANGUES\n\nFrançais (natif) · Anglais (B2, TOEIC 820)\n\n→ CENTRES D'INTÉRÊT\n\nRandonnée, œnologie, engagement associatif (Croix-Rouge Gironde)",
+    "expected": {
+      "full_name": "Emma Leroux",
+      "email": "emma.leroux@laposte.net",
+      "phone": "06 31 78 20 44",
+      "location": "Bordeaux",
+      "linkedin": null,
+      "github": null,
+      "skills": ["droit du travail", "gestion des conflits", "conduite du changement", "lucca", "payfit", "sap successfactors", "pack office", "teams", "linkedin recruiter"],
+      "experiences": [
+        {"title": "Responsable RH", "company": "Biocoop Sud-Ouest"},
+        {"title": "Chargée de Recrutement Senior", "company": "Cabinet Michael Page"},
+        {"title": "Assistante RH", "company": "CDISCOUNT"}
+      ],
+      "education": [
+        {"degree": "Master 2 Gestion des Ressources Humaines", "institution": "IAE Bordeaux"},
+        {"degree": "Licence en Droit Social", "institution": "Université de Bordeaux"}
+      ],
+      "languages": [
+        {"language": "Français", "level": "natif"},
+        {"language": "Anglais", "level": "B2"}
+      ]
+    }
+  },
+  {
+    "id": "cv_010_intern_student_mixed_fr_en",
+    "text": "Nguyen Thi Linh\nÉtudiante en Master Marketing Digital — Recherche stage de fin d'études\n\nContact : linh.nguyen.mkt@gmail.com · 07 58 92 14 06\nGrenoble, France · Mobile internationalement\nLinkedIn: https://www.linkedin.com/in/linh-nguyen-mkt\n\n──────────\n\nPROFIL / ABOUT\n\nÉtudiante curieuse et polyvalente à Grenoble École de Management. Passionate about growth marketing and consumer behavior analysis. À la recherche d'un stage de 6 mois (mars-août 2026) sur des problématiques d'acquisition payante ou de CRM.\n\n──────────\n\nFORMATION\n\nMaster 2 — Marketing Digital & Data Analytics\nGrenoble École de Management (GEM) — en cours (diplôme attendu fév. 2026)\nMémoire en cours : \"Impact du cookieless tracking sur les stratégies d'attribution en e-commerce\"\n\nBachelor of Business Administration\nForeign Trade University (FTU), Hanoi — 2020-2023\nMajor: International Business — GPA 3.71/4.0\n\nSemester abroad: KEDGE Business School, Marseille — Spring 2022\n\n──────────\n\nEXPÉRIENCES\n\nStage — Growth Marketing Assistant\nBackMarket · Paris (remote) · Juin - Sept 2024 (4 mois)\n- Support sur les campagnes Google Ads (budget hebdomadaire ~80k€)\n- Analyse des performances par segment de clientèle (Looker Studio)\n- Rédaction de creative briefs pour l'équipe design\n\nAlternance — Assistante Marketing\nDecathlon Vietnam · Ho Chi Minh City · 2022-2023 (13 mois)\n- Gestion des réseaux sociaux locaux (Facebook, Zalo, TikTok)\n- Coordination d'events en magasin\n\nService client (temps partiel)\nUniqlo · Hanoi · 2020-2022\n\n──────────\n\nCOMPÉTENCES\n\nMarketing : Google Ads, Meta Ads, SEO basics, email marketing (Brevo)\nAnalyse : Google Analytics 4, Looker Studio, Excel avancé, SQL débutant\nOutils : HubSpot, Notion, Canva, Figma (basics)\n\nLANGUES\nVietnamien (natif) · Anglais (TOEIC 920) · Français (C1, DELF B2 obtenu en 2021)\n\n──────────\n\nCENTRES D'INTÉRÊT\nRando en montagne (Alpes, Dolomites), podcasts business, photographie argentique",
+    "expected": {
+      "full_name": "Nguyen Thi Linh",
+      "email": "linh.nguyen.mkt@gmail.com",
+      "phone": "07 58 92 14 06",
+      "location": "Grenoble, France",
+      "linkedin": "https://www.linkedin.com/in/linh-nguyen-mkt",
+      "github": null,
+      "skills": ["google ads", "meta ads", "seo", "email marketing", "brevo", "google analytics 4", "looker studio", "excel", "sql", "hubspot", "notion", "canva", "figma"],
+      "experiences": [
+        {"title": "Growth Marketing Assistant", "company": "BackMarket"},
+        {"title": "Assistante Marketing", "company": "Decathlon Vietnam"},
+        {"title": "Service client", "company": "Uniqlo"}
+      ],
+      "education": [
+        {"degree": "Master 2 Marketing Digital & Data Analytics", "institution": "Grenoble École de Management"},
+        {"degree": "Bachelor of Business Administration", "institution": "Foreign Trade University"}
+      ],
+      "languages": [
+        {"language": "Vietnamien", "level": "natif"},
+        {"language": "Anglais", "level": "TOEIC 920"},
+        {"language": "Français", "level": "C1"}
+      ]
+    }
+  }
+]

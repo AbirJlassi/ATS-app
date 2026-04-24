@@ -67,7 +67,7 @@ def run_matching_background(candidature_id: UUID) -> None:
         }
 
         engine = get_engine()
-        result = engine.match(cv_data, offre_dict)
+        result = engine.match(cv_data, offre_dict, db=db)  # ← db transmis pour le cache LLM
 
         # ── Upsert MatchResult ──────────────────────────────────
         existing = db.query(MatchResult).filter(

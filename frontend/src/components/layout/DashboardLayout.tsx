@@ -5,13 +5,15 @@
  * Light mode → Fond gris clair neutre (#F4F5F7) avec légère texture
  *
  * Structure :
- *   <aside>  Sidebar collapsible (Sidebar.tsx)
- *   <main>   Zone de contenu scrollable
+ *   <aside>    Sidebar collapsible (Sidebar.tsx)
+ *   <main>     Zone de contenu scrollable
+ *   <Toaster>  Notifications globales (bas-droite)
  */
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useThemeStore } from "@/store/themeStore";
 import Sidebar from "@/components/layout/Sidebar";
+import Toaster from "@/components/common/toaster";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -130,6 +132,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {children}
         </motion.main>
       </div>
+
+      {/* ── Notifications globales (bas-droite) ── */}
+      <Toaster />
     </div>
   );
 }

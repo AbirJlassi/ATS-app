@@ -1,0 +1,37 @@
+{
+  "database": {
+    "source": "base PostgreSQL",
+    "stats": {
+      "n": 20,
+      "min": 0.2853,
+      "max": 0.8134,
+      "mean": 0.523,
+      "median": 0.5287,
+      "std": 0.1409,
+      "percentiles": {
+        "1": 0.2919,
+        "5": 0.3183,
+        "10": 0.3432,
+        "25": 0.4316,
+        "50": 0.5287,
+        "75": 0.5896,
+        "90": 0.6981,
+        "95": 0.8134,
+        "99": 0.8134
+      }
+    },
+    "current_bounds": [
+      0.2,
+      0.9
+    ],
+    "current_coverage_pct": 100.0,
+    "recommended_bounds_p10_p90": [
+      0.34,
+      0.7
+    ],
+    "recommended_bounds_p5_p95": [
+      0.32,
+      0.81
+    ]
+  }
+}

@@ -1,8 +1,9 @@
-export type Role    = "CANDIDAT" | "RECRUTEUR" | "ADMINISTRATEUR";
-export type Statut  = "EN_ATTENTE" | "ACTIF" | "SUSPENDU";
+export type Role = "CANDIDAT" | "RECRUTEUR" | "ADMINISTRATEUR";
+export type Statut = "EN_ATTENTE" | "ACTIF" | "SUSPENDU";
 export type StatutOffre = "BROUILLON" | "PUBLIEE" | "FERMEE";
 export type StatutCandidature = "SOUMISE" | "EN_COURS_EXAMEN" | "ACCEPTEE" | "REFUSEE";
 export type ParseStatut = "EN_ATTENTE" | "EN_COURS" | "TERMINE" | "ECHEC";
+export { default as benchmarkService } from "@/services/benchmarkService";
 
 export interface User {
   id: string; email: string; role: Role; statut: Statut;
@@ -32,18 +33,18 @@ export interface CVEducation {
 export interface CVLanguage { language?: string; level?: string; }
 
 export interface CVData {
-  full_name?:      string;
-  email?:          string;
-  phone?:          string;
-  location?:       string;
-  linkedin?:       string;
-  github?:         string;
-  summary?:        string;
-  skills:          string[];
-  languages:       CVLanguage[];
-  experiences:     CVExperience[];
-  education:       CVEducation[];
-  certifications:  string[];
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  linkedin?: string;
+  github?: string;
+  summary?: string;
+  skills: string[];
+  languages: CVLanguage[];
+  experiences: CVExperience[];
+  education: CVEducation[];
+  certifications: string[];
 }
 
 export interface Candidature {

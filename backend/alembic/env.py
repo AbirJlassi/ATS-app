@@ -11,6 +11,8 @@ import app.models.user
 import app.models.offre
 import app.models.candidature
 import app.models.match_result
+import app.models.benchmark_run
+import app.models.llm_cache
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
